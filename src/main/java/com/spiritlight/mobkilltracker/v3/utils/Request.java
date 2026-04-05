@@ -1,21 +1,30 @@
 package com.spiritlight.mobkilltracker.v3.utils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 public class Request {
+    private static final HttpClient CLIENT =
+            HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+
     public static String get(String url) {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            final HttpGet httpGet = new HttpGet(url);
-            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-                return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            }
-        } catch (IOException e) {
+        try {
+            HttpRequest request =
+                    HttpRequest.newBuilder()
+                            .uri(URI.create(url))
+                            .timeout(Duration.ofSeconds(10))
+                            .GET()
+                            .build();
+
+            HttpResponse<String> response =
+                    CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return response.statusCode() == 200 ? response.body() : "";
+        } catch (Exception e) {
+            e.printStackTrace();
             return "";
         }
     }
