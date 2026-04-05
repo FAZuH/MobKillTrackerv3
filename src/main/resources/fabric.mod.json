@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "mobkilltrackerv3",
+  "version": "${version}",
+  "name": "MobKillTracker v3",
+  "description": "MobKillTracker v3 for 1.21.1",
+  "authors": [
+    "OriTheSpirit"
+  ],
+  "contact": {
+    "homepage": "https://github.com/OriTheSpirit/MobKillTrackerv3",
+    "sources": "https://github.com/OriTheSpirit/MobKillTrackerv3"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/mobkilltrackerv3/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.spiritlight.mobkilltracker.v3.Main"
+    ]
+  },
+  "mixins": [
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
