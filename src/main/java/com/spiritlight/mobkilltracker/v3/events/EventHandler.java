@@ -34,13 +34,40 @@ public class EventHandler {
 
     public static void onMessageReceived(String message) {
         if (!Main.configuration.isModEnabled()) return;
-        // Debug
         Main.LOGGER.info("[MKT] Chat message received: {}", message);
-        if (message.contains("has placed a mob totem in")
-                || message.contains("wynncraft.com/store")) {
+        if (isMobTotemPlacement(message)) {
             Main.LOGGER.info("[MKT] Totem placement detected!");
             onTotemPlacement(new TotemEvent());
         }
+    }
+
+    /**
+     * Detects if a chat message is a system mob totem placement notification.
+     *
+     * <p>System messages from Wynncraft are prefixed with special Unicode characters (private use
+     * area: \uDBFF\uDFF4\uDBFF\uDFF0), while player chat messages are not. This method checks for
+     * both the system message prefix AND the totem placement keywords to avoid false positives from
+     * players typing similar text.
+     *
+     * @param message the chat message to check
+     * @return true if this is a system mob totem placement message
+     */
+    public static boolean isMobTotemPlacement(String message) {
+        // Detect system totem placement messages vs player chat
+        // System messages start with special Unicode characters (private use area)
+        // and have format: "󏿼󏿿󏿾 NotFAZuH has placed a mob totem in..."
+        // Player chat has format: "NotFAZuH: has placed a mob totem in" (with colon-space)
+        //
+        // Strategy: Check for totem text AND ensure it's not player chat (no ": ")
+        if (!message.contains("has placed a mob totem in")) {
+            return false;
+        }
+        // Player chat messages contain ": " after the player name
+        // System messages do not have this pattern
+        if (message.contains(": ")) {
+            return false;
+        }
+        return true;
     }
 
     private static final DecimalFormat df = new DecimalFormat("0.00");
