@@ -1,0 +1,71 @@
+graph LR
+    subgraph "Presentation Layer"
+        CMD[MKTCommand<br/>MKTDebugCommand]
+        MSG[Message]
+    end
+
+    subgraph "Event Layer"
+        EVH[EventHandler]
+        EEH[EntityEventHandler]
+        EVENTS[Custom Events<br/>TotemEvent<br/>CompletionEvent<br/>TerminationEvent<br/>ExecutionEvent]
+    end
+
+    subgraph "Core Layer"
+        DH[DataHandler]
+        DS[DropStatistics]
+        DM[DropManager]
+    end
+
+    subgraph "Data Access Layer"
+        CFG[Config]
+        IDB[ItemDatabase]
+        REQ[Request<br/>HTTP Client]
+    end
+
+    subgraph "External Integration"
+        MC[Minecraft/Forge API]
+        API[Wynncraft API]
+    end
+
+    subgraph "Utilities"
+        UTILS[Shared Constants<br/>Math Utilities<br/>Collections]
+    end
+
+    subgraph "Adapters Layer"
+        FAB[Fabric Adapters<br/>Entity, Player, Client]
+    end
+
+    CMD --> DH
+    CMD --> DM
+    CMD --> MSG
+
+    EVH --> DH
+    EVH --> EVENTS
+    EEH --> DS
+    EEH --> IDB
+
+    DH --> EEH
+    DH --> DM
+    DH --> EVENTS
+
+    DS --> DM
+
+    IDB --> REQ
+    IDB --> API
+
+    CFG --> JSON[config.json]
+
+    EEH --> MC
+
+    MSG --> MC
+
+    EVENTS --> MC
+
+    FAB -.->|"Future Port"| MC
+
+    style CMD fill:#e1f5fe
+    style EVH fill:#fff3e0
+    style DH fill:#e8f5e9
+    style CFG fill:#fce4ec
+    style MC fill:#f3e5f5
+    style FAB fill:#fff8e1

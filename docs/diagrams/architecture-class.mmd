@@ -1,0 +1,147 @@
+---
+config:
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+    class Main {
+        +String MODID
+        +String NAME
+        +String VERSION
+        +Config configuration
+        +preInit() void
+        +init() void
+        +export() void
+        +save() void
+    }
+
+    class Config {
+        +save() void
+        +load() void
+    }
+
+    class EventHandler {
+        +onDisconnect() void
+        +onTotemPlacement() void
+        +onMessageReceived() void
+        +onCompletion() void
+        +termination() void
+    }
+
+    class EntityEventHandler {
+        +onEntityUpdate() void
+        +getStats() DropStatistics
+    }
+
+    class DataHandler {
+        +start() void
+        +stop() DropStatistics
+        +terminate() void
+        +whenComplete() DataHandler
+        +onTerminate() DataHandler
+        +getStats() DropStatistics
+        +static newHandler() DataHandler
+    }
+
+    class DropStatistics {
+        +addKill() void
+        +addMythic() void
+        +getQuantity() int
+        +getRarityIndex() double
+        +toJson() JsonElement
+    }
+
+    class DropManager {
+        +static DropManager instance
+        +insert() void
+        +get() DropStatistics
+        +remove() void
+        +clear() void
+        +getLast() DropStatistics
+        +static exportDrops() void
+        +static exportAllDrops() void
+    }
+
+    class ItemDatabase {
+        +static ItemDatabase instance
+        +getItemType() Type
+        +getItemRarity() Rarity
+        +getIngredientTier() Tier
+        +fetchItem() void
+    }
+
+    class MKTCommand {
+        +getName() String
+        +execute() void
+    }
+
+    class Message {
+        +static info() void
+        +static warn() void
+        +static error() void
+        +static debug() void
+        +static send() void
+        +static builder() MessageBuilder
+    }
+
+    class TotemEvent {
+        +TotemEvent()
+    }
+
+    class CompletionEvent {
+        +getHandler() DataHandler
+    }
+
+    class TerminationEvent {
+        +getType() Type
+    }
+
+    class ExecutionEvent {
+        +shouldExecute() boolean
+        +getAction() Runnable
+    }
+
+    class Event {
+        <<Forge>>
+    }
+
+    class CommandBase {
+        <<Forge>>
+    }
+
+    class IClientCommand {
+        <<Forge>>
+    }
+
+    class Request {
+        +static get() String
+    }
+
+    Main *-- Config : owns
+    DataHandler *-- EntityEventHandler : owns
+    EntityEventHandler *-- DropStatistics : owns
+    DropManager *-- DropStatistics : stores
+
+    EventHandler o-- DataHandler : manages
+
+    DataHandler --|> DataHandler.ListenerHandler : extends
+    TotemEvent --|> Event
+    CompletionEvent --|> Event
+    TerminationEvent --|> Event
+    ExecutionEvent --|> Event
+    MKTCommand --|> CommandBase : extends
+
+    MKTCommand ..|> IClientCommand : implements
+
+    Main --> EventHandler : registers
+    EntityEventHandler --> ItemDatabase : queries
+    DataHandler --> DropStatistics : collects
+    MKTCommand --> DropManager : queries
+    MKTCommand --> Message : outputs
+    CompletionEvent --> DataHandler : references
+
+    EventHandler ..> DataHandler : creates
+    EventHandler ..> TotemEvent : posts
+    EventHandler ..> CompletionEvent : handles
+    DataHandler ..> CompletionEvent : posts
+    ItemDatabase ..> Request : HTTP call
