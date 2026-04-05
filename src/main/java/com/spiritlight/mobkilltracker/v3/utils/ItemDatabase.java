@@ -41,11 +41,8 @@ public class ItemDatabase {
         itemMap.clear();
         ingredientMap.clear();
 
-        // Load items from bundled JSON resource
-        loadItemsFromResource();
-
-        // Load ingredients from bundled JSON resource
-        loadIngredientsFromResource();
+        // Load from full result (contains both items and ingredients)
+        loadFromFullResult();
 
         System.out.println(
                 "[MKT-DEBUG] Loaded "
@@ -56,92 +53,54 @@ public class ItemDatabase {
         System.out.println("Items loaded.");
     }
 
-    private void loadItemsFromResource() {
-        try (BufferedReader reader =
-                new BufferedReader(
-                        new InputStreamReader(
-                                Objects.requireNonNull(
-                                        getClass()
-                                                .getResourceAsStream("/data/wynncraft-items.json")),
-                                StandardCharsets.UTF_8))) {
-            JsonElement itemsElement = new Gson().fromJson(reader, JsonElement.class);
-
-            if (itemsElement == null || !itemsElement.isJsonObject()) {
-                System.out.println("[MKT-ERROR] Items resource is null or not an object");
-                return;
-            }
-
-            JsonObject itemsObj = itemsElement.getAsJsonObject();
-
-            for (Map.Entry<String, JsonElement> entry : itemsObj.entrySet()) {
-                String itemName = entry.getKey();
-                JsonElement itemData = entry.getValue();
-                if (!itemData.isJsonObject()) continue;
-
-                JsonObject itemObj = itemData.getAsJsonObject();
-
-                // Skip ingredients - they have type "ingredient"
-                if (itemObj.has("type") && "ingredient".equals(itemObj.get("type").getAsString())) {
-                    continue;
-                }
-
-                // Items have "tier" field for rarity (lowercase: normal, unique, rare, etc.)
-                if (itemObj.has("tier")) {
-                    String rarity = itemObj.get("tier").getAsString();
-                    Rarity itemRarity = Rarity.fromString(rarity);
-                    if (itemRarity != Rarity.UNKNOWN) {
-                        itemMap.put(itemName, itemRarity);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("[MKT-ERROR] Failed to load items from resource: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private void loadIngredientsFromResource() {
+    private void loadFromFullResult() {
         try (BufferedReader reader =
                 new BufferedReader(
                         new InputStreamReader(
                                 Objects.requireNonNull(
                                         getClass()
                                                 .getResourceAsStream(
-                                                        "/data/wynncraft-ingredients.json")),
+                                                        "/data/wynncraft-items-full.json")),
                                 StandardCharsets.UTF_8))) {
-            JsonElement ingredientsElement = new Gson().fromJson(reader, JsonElement.class);
+            JsonElement dataElement = new Gson().fromJson(reader, JsonElement.class);
 
-            if (ingredientsElement == null || !ingredientsElement.isJsonObject()) {
-                System.out.println("[MKT-ERROR] Ingredients resource is null or not an object");
+            if (dataElement == null || !dataElement.isJsonObject()) {
+                System.out.println("[MKT-ERROR] Full result resource is null or not an object");
                 return;
             }
 
-            JsonObject ingredientsObj = ingredientsElement.getAsJsonObject();
+            JsonObject dataObj = dataElement.getAsJsonObject();
 
-            // The ingredients response has a "results" wrapper
-            JsonObject results = ingredientsObj.getAsJsonObject("results");
-            if (results == null) {
-                System.out.println("[MKT-ERROR] Ingredients resource missing 'results' key");
-                return;
-            }
-
-            for (Map.Entry<String, JsonElement> entry : results.entrySet()) {
+            for (Map.Entry<String, JsonElement> entry : dataObj.entrySet()) {
                 String itemName = entry.getKey();
                 JsonElement itemData = entry.getValue();
                 if (!itemData.isJsonObject()) continue;
 
                 JsonObject itemObj = itemData.getAsJsonObject();
+                String type = itemObj.has("type") ? itemObj.get("type").getAsString() : "";
 
-                // Ingredients have "tier" field like "TIER_0", "TIER_1", etc.
-                if (itemObj.has("tier")) {
-                    String tierStr = itemObj.get("tier").getAsString();
-                    Tier tier = parseTier(tierStr);
-                    ingredientMap.put(itemName, tier);
+                if ("ingredient".equals(type)) {
+                    // Ingredient: has "tier" field like "TIER_0", "TIER_1", etc.
+                    if (itemObj.has("tier")) {
+                        String tierStr = itemObj.get("tier").getAsString();
+                        Tier tier = parseTier(tierStr);
+                        if (tier != Tier.UNKNOWN) {
+                            ingredientMap.put(itemName, tier);
+                        }
+                    }
+                } else {
+                    // Item: has "tier" field for rarity (lowercase: normal, unique, rare, etc.)
+                    if (itemObj.has("tier")) {
+                        String rarity = itemObj.get("tier").getAsString();
+                        Rarity itemRarity = Rarity.fromString(rarity);
+                        if (itemRarity != Rarity.UNKNOWN) {
+                            itemMap.put(itemName, itemRarity);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
-            System.out.println(
-                    "[MKT-ERROR] Failed to load ingredients from resource: " + e.getMessage());
+            System.out.println("[MKT-ERROR] Failed to load from full result: " + e.getMessage());
             e.printStackTrace();
         }
     }

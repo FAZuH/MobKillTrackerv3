@@ -32,7 +32,8 @@ public class DataHandler {
 
     private DataHandler() {
         handler = new EntityEventHandler();
-        if (Main.configuration.doTrackLast()) lastHandler = this;
+        // Always track the last handler for active sessions
+        lastHandler = this;
     }
 
     public static void invalidateLast() {
@@ -44,10 +45,19 @@ public class DataHandler {
     }
 
     public void start(int duration) {
-        Message.debugv("DataHandler started with set duration " + duration);
+        Main.LOGGER.info("[MKT] DataHandler.start() called with duration={}s", duration);
+        Main.LOGGER.info(
+                "[MKT] inProgress={}, lastHandler={}",
+                inProgress,
+                lastHandler != null ? "set" : "null");
 
         inProgress = true;
         scheduler.schedule(this::stop, duration, TimeUnit.SECONDS);
+
+        Main.LOGGER.info(
+                "[MKT] Tracking session started. inProgress={}, lastHandler={}",
+                inProgress,
+                lastHandler != null ? "set" : "null");
     }
 
     /**
@@ -138,9 +148,6 @@ public class DataHandler {
      * @return The last data handler (including the currently active one, if any)
      */
     public static DataHandler getLastHandler() {
-        if (!Main.configuration.doTrackLast()) {
-            return null;
-        }
         return lastHandler;
     }
 

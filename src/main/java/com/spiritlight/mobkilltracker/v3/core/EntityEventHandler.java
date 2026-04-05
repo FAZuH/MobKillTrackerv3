@@ -60,17 +60,28 @@ public class EntityEventHandler {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(16);
 
     public void onEntityUpdate(Entity entity) {
-        if (entity == null) return; // EDGE-CASE
-        if (storedEntities.contains(entity)) return;
-        if (viewedEntities.contains(entity.getUuid())) {
-            Message.debugv("Avoiding duplicated UUID " + entity.getUuid() + " from being counted.");
+        if (entity == null) {
+            Main.LOGGER.debug("[MKT] onEntityUpdate: entity is null");
             return;
         }
-        // Processing items in this tab
+        if (storedEntities.contains(entity)) {
+            Main.LOGGER.debug("[MKT] onEntityUpdate: entity already stored, skipping");
+            return;
+        }
+        if (viewedEntities.contains(entity.getUuid())) {
+            Main.LOGGER.debug("[MKT] onEntityUpdate: UUID already viewed, skipping");
+            return;
+        }
 
-        Message.debug("Found entity " + entity.getName().getString());
+        Main.LOGGER.info(
+                "[MKT] onEntityUpdate: Processing entity {} (type={})",
+                entity.getName().getString(),
+                entity.getClass().getSimpleName());
 
-        if (MinecraftClient.getInstance().world == null) return;
+        if (MinecraftClient.getInstance().world == null) {
+            Main.LOGGER.debug("[MKT] onEntityUpdate: world is null");
+            return;
+        }
 
         if (Main.configuration.getDelayMills() == 0) {
             CompletableFuture.runAsync(() -> this.processEntity(entity));
@@ -105,43 +116,44 @@ public class EntityEventHandler {
     }
 
     private void processEntity(Entity entity) {
+        Main.LOGGER.debug("[MKT] processEntity: Adding to storedEntities");
         storedEntities.add(entity);
-        if (entity == null) return;
-        // False if unchanged, implying it already exists, but we already made sure this is not the
-        // case?
-        if (!viewedEntities.add(entity.getUuid())) {
-            Message.debugv(
-                    "Avoiding duplicated UUID "
-                            + entity.getUuid()
-                            + " in EntityEventHandler#processEntity(Entity)");
-            Message.debugv(
-                    "This is a strange behaviour. Please alert the mod developer if this becomes a recurring issue.");
+        if (entity == null) {
+            Main.LOGGER.debug("[MKT] processEntity: entity became null");
             return;
         }
+        if (!viewedEntities.add(entity.getUuid())) {
+            Main.LOGGER.debug("[MKT] processEntity: UUID already in viewedEntities, skipping");
+            return;
+        }
+
+        Main.LOGGER.info(
+                "[MKT] processEntity: Processing {} (isItemEntity={})",
+                entity.getName().getString(),
+                entity instanceof ItemEntity);
+
         if (entity instanceof ItemEntity) {
             ItemEntity entityItem = (ItemEntity) entity;
-            // Ignoring emerald for sake of our life
-            if (entityItem.getStack().isOf(Items.EMERALD)) return;
+            Main.LOGGER.debug("[MKT] processEntity: ItemEntity detected");
 
-            NbtCompound nbt = entityItem.writeNbt(new NbtCompound());
-            String itemName = "";
-            try {
-                itemName =
-                        nbt.getCompound("Item")
-                                .getCompound("components")
-                                .getCompound("minecraft:custom_name")
-                                .getString("text"); // Fabric 1.21.1 uses components
-            } catch (Exception e) {
-                itemName = entityItem.getStack().getName().getString();
+            // Ignoring emerald for sake of our life
+            if (entityItem.getStack().isOf(Items.EMERALD)) {
+                Main.LOGGER.debug("[MKT] processEntity: Skipping emerald");
+                return;
             }
+
+            // Get item name from the item stack's display name and strip color codes
+            String itemName =
+                    entityItem.getStack().getName().getString().replaceAll("§[0-9a-fk-or]", "");
 
             Type type = ItemDatabase.instance.getItemType(itemName);
 
             if (type == Type.UNKNOWN) {
-                Main.LOGGER.debug("[MKT] Unknown item type for: {}", itemName);
+                Main.LOGGER.debug("[MKT] processEntity: Unknown item, skipping: '{}'", itemName);
                 return;
             }
-            Main.LOGGER.debug("[MKT] Detected item: {} (type={})", itemName, type);
+            Main.LOGGER.info(
+                    "[MKT] processEntity: Detected Wynncraft item '{}' (type={})", itemName, type);
 
             // Old schooled way due to involving some huge ass component that I'm too lazy to change
             if (Main.configuration.isLogging() || Main.configuration.doLogValid()) {
@@ -167,8 +179,6 @@ public class EntityEventHandler {
                                                                 + "\n"
                                                                 + "Item UUID: "
                                                                 + entity.getUuid()
-                                                                + "\n\n"
-                                                                + nbt.toString()
                                                                 + "\n\nClick to track!")))
                                 .addClickEvent(
                                         ClickEvent.Action.RUN_COMMAND,

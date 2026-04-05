@@ -14,7 +14,6 @@ import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
@@ -240,9 +239,12 @@ public class MKTDebugCommand {
                                                                                                                     + e
                                                                                                                             .getUuid()
                                                                                                                     + "\n\n"
+                                                                                                                    + "Type: "
                                                                                                                     + e
-                                                                                                                            .writeNbt(
-                                                                                                                                    new NbtCompound())
+                                                                                                                            .getType()
+                                                                                                                    + "\nPos: "
+                                                                                                                    + e
+                                                                                                                            .getPos()
                                                                                                                     + "\n\nClick to track!")))
                                                                             .addClickEvent(
                                                                                     ClickEvent
@@ -261,9 +263,10 @@ public class MKTDebugCommand {
                                                             Message.sendRaw(itc);
                                                             System.out.println(
                                                                     e.getName().getString()
-                                                                            + "#"
-                                                                            + e.writeNbt(
-                                                                                    new NbtCompound()));
+                                                                            + "#Type="
+                                                                            + e.getType()
+                                                                            + "#Pos="
+                                                                            + e.getPos());
                                                         } catch (Exception ex) {
                                                             Message.error(
                                                                     "Error whilst dumping entity: "

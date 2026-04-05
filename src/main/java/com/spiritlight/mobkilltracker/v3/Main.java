@@ -58,15 +58,19 @@ public class Main implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(
                 client -> {
                     if (client.world != null) {
-                        if (DataHandler.isInProgress() && DataHandler.getLastHandler() != null) {
-                            client.world
-                                    .getEntities()
-                                    .forEach(
-                                            entity -> {
-                                                DataHandler.getLastHandler()
-                                                        .getHandler()
-                                                        .onEntityUpdate(entity);
-                                            });
+                        boolean inProgress = DataHandler.isInProgress();
+                        DataHandler lastHandler = DataHandler.getLastHandler();
+                        if (inProgress && lastHandler != null) {
+                            try {
+                                client.world
+                                        .getEntities()
+                                        .forEach(
+                                                entity -> {
+                                                    lastHandler.getHandler().onEntityUpdate(entity);
+                                                });
+                            } catch (Exception e) {
+                                LOGGER.error("[MKT] Error processing entities: ", e);
+                            }
                         }
                     }
                 });
