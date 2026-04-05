@@ -5,7 +5,8 @@ import java.util.*;
 
 @DelegatesToShadow
 public class IntList implements List<Integer> {
-    @DelegatesToShadow.Target private final List<Integer> back;
+    @DelegatesToShadow.Target
+    private final List<Integer> back;
 
     public IntList() {
         this.back = new ArrayList<>();

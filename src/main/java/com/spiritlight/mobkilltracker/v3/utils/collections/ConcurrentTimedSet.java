@@ -11,13 +11,12 @@ public class ConcurrentTimedSet<E> extends AbstractSet<E> {
 
     private final Map<E, ObjectDescriptor<E>> map = new ConcurrentHashMap<>();
 
-    private final ObjectDescriptor<E> EMPTY =
-            new ObjectDescriptor<E>(null, 0) {
-                @Override
-                public boolean expired() {
-                    return true;
-                }
-            };
+    private final ObjectDescriptor<E> EMPTY = new ObjectDescriptor<E>(null, 0) {
+        @Override
+        public boolean expired() {
+            return true;
+        }
+    };
 
     public ConcurrentTimedSet(long delay, TimeUnit unit) {
         this.delay = delay;

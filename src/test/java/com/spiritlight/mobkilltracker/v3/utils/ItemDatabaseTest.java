@@ -11,40 +11,38 @@ import org.junit.jupiter.api.Test;
 class ItemDatabaseTest {
 
     // Sample API response from /v3/item/database (items - armour, weapons, etc.)
-    private static final String ITEMS_API_RESPONSE =
-            "{"
-                    + "\"controller\": {\"count\": 6615, \"current_count\": 2, \"pages\": 331},"
-                    + "\"results\": {"
-                    + "  \"Alstroemania\": {"
-                    + "    \"internalName\": \"Alstroemania\","
-                    + "    \"type\": \"armour\","
-                    + "    \"tier\": \"legendary\""
-                    + "  },"
-                    + "  \"Amalgamation\": {"
-                    + "    \"internalName\": \"Amalgamation\","
-                    + "    \"type\": \"weapon\","
-                    + "    \"tier\": \"rare\""
-                    + "  }"
-                    + "}"
-                    + "}";
+    private static final String ITEMS_API_RESPONSE = "{"
+            + "\"controller\": {\"count\": 6615, \"current_count\": 2, \"pages\": 331},"
+            + "\"results\": {"
+            + "  \"Alstroemania\": {"
+            + "    \"internalName\": \"Alstroemania\","
+            + "    \"type\": \"armour\","
+            + "    \"tier\": \"legendary\""
+            + "  },"
+            + "  \"Amalgamation\": {"
+            + "    \"internalName\": \"Amalgamation\","
+            + "    \"type\": \"weapon\","
+            + "    \"tier\": \"rare\""
+            + "  }"
+            + "}"
+            + "}";
 
     // Sample API response from /v3/item/search (ingredients)
-    private static final String INGREDIENTS_API_RESPONSE =
-            "{"
-                    + "\"controller\": {\"count\": 969, \"current_count\": 2, \"pages\": 49},"
-                    + "\"results\": {"
-                    + "  \"Manifestation of Agony\": {"
-                    + "    \"internalName\": \"Manifestation of Agony\","
-                    + "    \"type\": \"ingredient\","
-                    + "    \"tier\": \"TIER_3\""
-                    + "  },"
-                    + "  \"Image of a Loved One\": {"
-                    + "    \"internalName\": \"Image of a Loved One\","
-                    + "    \"type\": \"ingredient\","
-                    + "    \"tier\": \"TIER_3\""
-                    + "  }"
-                    + "}"
-                    + "}";
+    private static final String INGREDIENTS_API_RESPONSE = "{"
+            + "\"controller\": {\"count\": 969, \"current_count\": 2, \"pages\": 49},"
+            + "\"results\": {"
+            + "  \"Manifestation of Agony\": {"
+            + "    \"internalName\": \"Manifestation of Agony\","
+            + "    \"type\": \"ingredient\","
+            + "    \"tier\": \"TIER_3\""
+            + "  },"
+            + "  \"Image of a Loved One\": {"
+            + "    \"internalName\": \"Image of a Loved One\","
+            + "    \"type\": \"ingredient\","
+            + "    \"tier\": \"TIER_3\""
+            + "  }"
+            + "}"
+            + "}";
 
     @Test
     void shouldParseItemsFromApiResponse() {

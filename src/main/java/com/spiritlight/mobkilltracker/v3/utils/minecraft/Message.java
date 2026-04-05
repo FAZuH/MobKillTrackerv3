@@ -11,15 +11,7 @@ import net.minecraft.text.Text;
 
 public class Message {
     public static final String TITLE =
-            Color.GOLD
-                    + "["
-                    + Color.GREEN
-                    + "MKT "
-                    + Color.YELLOW
-                    + "v3"
-                    + Color.GOLD
-                    + "] "
-                    + Color.RESET;
+            Color.GOLD + "[" + Color.GREEN + "MKT " + Color.YELLOW + "v3" + Color.GOLD + "] " + Color.RESET;
 
     public static void info(String s) {
         send(s, Color.WHITE);
@@ -42,8 +34,7 @@ public class Message {
     }
 
     public static void debugv(String s) {
-        if (Main.configuration.doLogValid() || Main.configuration.isLogging())
-            send(s, Color.MAGENTA);
+        if (Main.configuration.doLogValid() || Main.configuration.isLogging()) send(s, Color.MAGENTA);
     }
 
     public static void send(String s) {
@@ -81,13 +72,11 @@ public class Message {
     private static void send0(Text content) {
         if (MinecraftClient.getInstance().player == null) return;
         // In Fabric, we can just send it directly or use client executor
-        MinecraftClient.getInstance()
-                .execute(
-                        () -> {
-                            if (MinecraftClient.getInstance().player != null) {
-                                MinecraftClient.getInstance().player.sendMessage(content, false);
-                            }
-                        });
+        MinecraftClient.getInstance().execute(() -> {
+            if (MinecraftClient.getInstance().player != null) {
+                MinecraftClient.getInstance().player.sendMessage(content, false);
+            }
+        });
     }
 
     public static Builder builder() {
@@ -114,25 +103,18 @@ public class Message {
         }
 
         public Builder addClickEvent(ClickEvent.Action action, String value) {
-            this.component =
-                    this.component.styled(
-                            style -> style.withClickEvent(new ClickEvent(action, value)));
+            this.component = this.component.styled(style -> style.withClickEvent(new ClickEvent(action, value)));
             return this;
         }
 
         public Builder addHoverEvent(HoverEvent.Action<Text> action, Text value) {
-            this.component =
-                    this.component.styled(
-                            style -> style.withHoverEvent(new HoverEvent(action, value)));
+            this.component = this.component.styled(style -> style.withHoverEvent(new HoverEvent(action, value)));
             return this;
         }
 
         public Builder addHoverEvent(HoverEvent.Action<Text> action, String value) {
             this.component =
-                    this.component.styled(
-                            style ->
-                                    style.withHoverEvent(
-                                            new HoverEvent(action, Text.literal(value))));
+                    this.component.styled(style -> style.withHoverEvent(new HoverEvent(action, Text.literal(value))));
             return this;
         }
 

@@ -17,8 +17,7 @@ public class CollectionMisc {
      */
     @Beta
     public static <T extends Comparable<T>> int noiseOf(Collection<T> collection) {
-        Set<T> set =
-                collection.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<T> set = collection.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
 
         int value = 0;
 

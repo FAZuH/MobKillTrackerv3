@@ -21,9 +21,7 @@ class EventHandlerTest {
                 "\uDBFF\uDFFC\uE014\uDBFF\uDFFF\uE002\uDBFF\uDFFE NotFAZuH has placed a mob totem in Essren's Hut",
             })
     void shouldDetectMobTotemPlacement(String message) {
-        assertTrue(
-                EventHandler.isMobTotemPlacement(message),
-                "Should detect totem placement: " + message);
+        assertTrue(EventHandler.isMobTotemPlacement(message), "Should detect totem placement: " + message);
     }
 
     @ParameterizedTest
@@ -46,9 +44,7 @@ class EventHandlerTest {
                 "§6[§aMKT §ev3§6] §r§eA totem is already in progress, ignoring this one...",
             })
     void shouldNotDetectNonTotemMessages(String message) {
-        assertFalse(
-                EventHandler.isMobTotemPlacement(message),
-                "Should NOT detect totem placement: " + message);
+        assertFalse(EventHandler.isMobTotemPlacement(message), "Should NOT detect totem placement: " + message);
     }
 
     @Test
@@ -56,11 +52,8 @@ class EventHandlerTest {
         // Player chat messages have ": " after the player name
         // This is the key differentiator from system messages
         assertFalse(EventHandler.isMobTotemPlacement("NotFAZuH: has placed a mob totem in"));
-        assertFalse(
-                EventHandler.isMobTotemPlacement("NotFAZuH: placed a mob totem in Essren's Hut"));
-        assertFalse(
-                EventHandler.isMobTotemPlacement(
-                        "Player: I just has placed a mob totem in my house"));
+        assertFalse(EventHandler.isMobTotemPlacement("NotFAZuH: placed a mob totem in Essren's Hut"));
+        assertFalse(EventHandler.isMobTotemPlacement("Player: I just has placed a mob totem in my house"));
         assertFalse(EventHandler.isMobTotemPlacement("NotFAZuH: Check out my mob totem in Detlas"));
     }
 
@@ -79,9 +72,8 @@ class EventHandlerTest {
     @Test
     void shouldNotDetectMobTotemRunOut() {
         // These messages don't contain "has placed"
-        assertFalse(
-                EventHandler.isMobTotemPlacement(
-                        "\uDBFF\uDFFC\uE014\uDBFF\uDFFF\uE002\uDBFF\uDFFE NotFAZuH's Mob Totem has run out Get your own mob"));
+        assertFalse(EventHandler.isMobTotemPlacement(
+                "\uDBFF\uDFFC\uE014\uDBFF\uDFFF\uE002\uDBFF\uDFFE NotFAZuH's Mob Totem has run out Get your own mob"));
         assertFalse(EventHandler.isMobTotemPlacement("NotFAZuH's Mob Totem has run out"));
     }
 

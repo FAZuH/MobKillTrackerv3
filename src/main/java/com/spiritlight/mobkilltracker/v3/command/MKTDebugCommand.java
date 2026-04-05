@@ -22,44 +22,31 @@ import net.minecraft.text.Text;
 public class MKTDebugCommand {
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-        dispatcher.register(
-                literal("mktd")
-                        .executes(
-                                ctx -> {
-                                    Message.error(
-                                            "Invalid syntax. /mktd stop|start <duration>|refetch|delay <duration>|log|logvalid|dump|tracklast|exportall|dumpviewed");
-                                    return 1;
-                                })
-                        .then(literal("stop").executes(MKTDebugCommand::stop))
-                        .then(
-                                literal("start")
-                                        .executes(ctx -> start(ctx, 30))
-                                        .then(
-                                                argument("duration", IntegerArgumentType.integer())
-                                                        .executes(
-                                                                ctx ->
-                                                                        start(
-                                                                                ctx,
-                                                                                IntegerArgumentType
-                                                                                        .getInteger(
-                                                                                                ctx,
-                                                                                                "duration")))))
-                        .then(literal("refetch").executes(MKTDebugCommand::refetch))
-                        .then(
-                                literal("delay")
-                                        .executes(MKTDebugCommand::delayHelp)
-                                        .then(
-                                                argument("duration", IntegerArgumentType.integer())
-                                                        .executes(MKTDebugCommand::setDelay)))
-                        .then(literal("log").executes(MKTDebugCommand::toggleLog))
-                        .then(literal("logvalid").executes(MKTDebugCommand::toggleLogValid))
-                        .then(literal("logv").executes(MKTDebugCommand::toggleLogValid))
-                        .then(literal("tracklast").executes(MKTDebugCommand::toggleTrackLast))
-                        .then(literal("exportall").executes(MKTDebugCommand::exportAll))
-                        .then(literal("dumpviewed").executes(MKTDebugCommand::dumpViewed))
-                        .then(literal("save").executes(MKTDebugCommand::save))
-                        .then(literal("load").executes(MKTDebugCommand::load))
-                        .then(literal("dump").executes(MKTDebugCommand::dump)));
+        dispatcher.register(literal("mktd")
+                .executes(ctx -> {
+                    Message.error(
+                            "Invalid syntax. /mktd stop|start <duration>|refetch|delay <duration>|log|logvalid|dump|tracklast|exportall|dumpviewed");
+                    return 1;
+                })
+                .then(literal("stop").executes(MKTDebugCommand::stop))
+                .then(literal("start")
+                        .executes(ctx -> start(ctx, 30))
+                        .then(argument("duration", IntegerArgumentType.integer())
+                                .executes(ctx -> start(ctx, IntegerArgumentType.getInteger(ctx, "duration")))))
+                .then(literal("refetch").executes(MKTDebugCommand::refetch))
+                .then(literal("delay")
+                        .executes(MKTDebugCommand::delayHelp)
+                        .then(argument("duration", IntegerArgumentType.integer())
+                                .executes(MKTDebugCommand::setDelay)))
+                .then(literal("log").executes(MKTDebugCommand::toggleLog))
+                .then(literal("logvalid").executes(MKTDebugCommand::toggleLogValid))
+                .then(literal("logv").executes(MKTDebugCommand::toggleLogValid))
+                .then(literal("tracklast").executes(MKTDebugCommand::toggleTrackLast))
+                .then(literal("exportall").executes(MKTDebugCommand::exportAll))
+                .then(literal("dumpviewed").executes(MKTDebugCommand::dumpViewed))
+                .then(literal("save").executes(MKTDebugCommand::save))
+                .then(literal("load").executes(MKTDebugCommand::load))
+                .then(literal("dump").executes(MKTDebugCommand::dump)));
     }
 
     private static int stop(CommandContext<FabricClientCommandSource> ctx) {
@@ -152,36 +139,32 @@ public class MKTDebugCommand {
 
         for (Entity e : MinecraftClient.getInstance().world.getEntities()) {
             try {
-                Text hoverText =
-                        Text.literal(
-                                "Wynncraft Item Name:"
-                                        + getEntityDisplayName(e)
-                                        + "\n"
-                                        + "Item UUID: "
-                                        + e.getUuid()
-                                        + "\n\n"
-                                        + "Type: "
-                                        + e.getType()
-                                        + "\nPos: "
-                                        + e.getPos()
-                                        + "\n\nClick to track!");
+                Text hoverText = Text.literal("Wynncraft Item Name:"
+                        + getEntityDisplayName(e)
+                        + "\n"
+                        + "Item UUID: "
+                        + e.getUuid()
+                        + "\n\n"
+                        + "Type: "
+                        + e.getType()
+                        + "\nPos: "
+                        + e.getPos()
+                        + "\n\nClick to track!");
 
-                Text message =
-                        Message.builder("Entity " + e.getName().getString() + ":")
-                                .addHoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)
-                                .addClickEvent(
-                                        ClickEvent.Action.RUN_COMMAND,
-                                        "/compass "
-                                                + e.getBlockPos().getX()
-                                                + " "
-                                                + e.getBlockPos().getY()
-                                                + " "
-                                                + e.getBlockPos().getZ())
-                                .build();
+                Text message = Message.builder("Entity " + e.getName().getString() + ":")
+                        .addHoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)
+                        .addClickEvent(
+                                ClickEvent.Action.RUN_COMMAND,
+                                "/compass "
+                                        + e.getBlockPos().getX()
+                                        + " "
+                                        + e.getBlockPos().getY()
+                                        + " "
+                                        + e.getBlockPos().getZ())
+                        .build();
 
                 Message.sendRaw(message);
-                System.out.println(
-                        e.getName().getString() + "#Type=" + e.getType() + "#Pos=" + e.getPos());
+                System.out.println(e.getName().getString() + "#Type=" + e.getType() + "#Pos=" + e.getPos());
             } catch (Exception ex) {
                 Message.error("Error whilst dumping entity: " + ex.getMessage());
                 ex.printStackTrace();

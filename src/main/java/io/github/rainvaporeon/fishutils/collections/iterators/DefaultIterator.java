@@ -20,9 +20,7 @@ public class DefaultIterator<T> implements Iterator<T>, Iterable<T> {
     private int cursor = 0;
 
     public DefaultIterator(
-            IntToBooleanFunction hasNextFunction,
-            IntFunction<T> nextFunction,
-            IntConsumer removeFunction) {
+            IntToBooleanFunction hasNextFunction, IntFunction<T> nextFunction, IntConsumer removeFunction) {
         this.hasNextFunction = Objects.requireNonNull(hasNextFunction);
         this.nextFunction = Objects.requireNonNull(nextFunction);
         this.removeFunction = removeFunction;

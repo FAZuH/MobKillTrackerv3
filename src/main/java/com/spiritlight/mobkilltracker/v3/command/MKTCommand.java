@@ -23,69 +23,50 @@ public class MKTCommand {
     private static final DecimalFormat df = new DecimalFormat("0.00");
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-        dispatcher.register(
-                literal("mkt")
-                        .executes(
-                                ctx -> {
-                                    help();
-                                    return 1;
-                                })
-                        .then(literal("toggle").executes(MKTCommand::toggle))
-                        .then(literal("last").executes(MKTCommand::showLast))
-                        .then(buildTraceCommand())
-                        .then(buildNoteCommand())
-                        .then(buildExportCommand()));
+        dispatcher.register(literal("mkt")
+                .executes(ctx -> {
+                    help();
+                    return 1;
+                })
+                .then(literal("toggle").executes(MKTCommand::toggle))
+                .then(literal("last").executes(MKTCommand::showLast))
+                .then(buildTraceCommand())
+                .then(buildNoteCommand())
+                .then(buildExportCommand()));
     }
 
     private static LiteralArgumentBuilder<FabricClientCommandSource> buildTraceCommand() {
         return literal("trace")
                 .executes(MKTCommand::traceHelp)
                 .then(literal("list").executes(MKTCommand::traceList))
-                .then(
-                        literal("delete")
-                                .then(literal("all").executes(MKTCommand::deleteAll))
-                                .then(literal("last").executes(MKTCommand::deleteLast))
-                                .then(
-                                        argument("index", IntegerArgumentType.integer())
-                                                .executes(MKTCommand::deleteIndex)))
-                .then(
-                        argument("index", IntegerArgumentType.integer())
-                                .executes(MKTCommand::showTraceIndex));
+                .then(literal("delete")
+                        .then(literal("all").executes(MKTCommand::deleteAll))
+                        .then(literal("last").executes(MKTCommand::deleteLast))
+                        .then(argument("index", IntegerArgumentType.integer()).executes(MKTCommand::deleteIndex)))
+                .then(argument("index", IntegerArgumentType.integer()).executes(MKTCommand::showTraceIndex));
     }
 
     private static LiteralArgumentBuilder<FabricClientCommandSource> buildNoteCommand() {
         return literal("note")
                 .executes(MKTCommand::noteHelp)
-                .then(
-                        literal("all")
-                                .then(
-                                        argument("note", StringArgumentType.greedyString())
-                                                .executes(MKTCommand::noteAll)))
-                .then(
-                        literal("last")
-                                .then(
-                                        argument("note", StringArgumentType.greedyString())
-                                                .executes(MKTCommand::noteLast)))
-                .then(
-                        argument("index", IntegerArgumentType.integer())
-                                .then(
-                                        argument("note", StringArgumentType.greedyString())
-                                                .executes(MKTCommand::noteIndex)));
+                .then(literal("all")
+                        .then(argument("note", StringArgumentType.greedyString())
+                                .executes(MKTCommand::noteAll)))
+                .then(literal("last")
+                        .then(argument("note", StringArgumentType.greedyString())
+                                .executes(MKTCommand::noteLast)))
+                .then(argument("index", IntegerArgumentType.integer())
+                        .then(argument("note", StringArgumentType.greedyString())
+                                .executes(MKTCommand::noteIndex)));
     }
 
     private static LiteralArgumentBuilder<FabricClientCommandSource> buildExportCommand() {
         return literal("export")
                 .executes(MKTCommand::exportHelp)
-                .then(
-                        literal("all")
-                                .then(
-                                        argument("name", StringArgumentType.string())
-                                                .executes(MKTCommand::exportAll)))
-                .then(
-                        literal("last")
-                                .then(
-                                        argument("name", StringArgumentType.string())
-                                                .executes(MKTCommand::exportLast)));
+                .then(literal("all")
+                        .then(argument("name", StringArgumentType.string()).executes(MKTCommand::exportAll)))
+                .then(literal("last")
+                        .then(argument("name", StringArgumentType.string()).executes(MKTCommand::exportLast)));
     }
 
     private static int toggle(CommandContext<FabricClientCommandSource> ctx) {
@@ -106,8 +87,7 @@ public class MKTCommand {
 
     private static int traceHelp(CommandContext<FabricClientCommandSource> ctx) {
         int size = DropManager.instance.size();
-        Message.send(
-                "There are currently " + size + (size == 1 ? " stat" : " stats") + " available.");
+        Message.send("There are currently " + size + (size == 1 ? " stat" : " stats") + " available.");
         Message.send("Do /mkt trace list to see all of them in brief context.");
         Message.send("Or do /mkt trace <index> to see the specific of that stat.");
         Message.send("Do /mkt trace delete <index> to delete that specific index.");
@@ -145,12 +125,7 @@ public class MKTCommand {
     }
 
     private static String formatTraceEntry(
-            int index,
-            DropStatistics stats,
-            int items,
-            int ingredients,
-            double itemRate,
-            double ingRate) {
+            int index, DropStatistics stats, int items, int ingredients, double itemRate, double ingRate) {
         return "Cache #"
                 + index
                 + ": §r"
@@ -261,15 +236,11 @@ public class MKTCommand {
     private static int exportHelp(CommandContext<FabricClientCommandSource> ctx) {
         int size = DropManager.instance.size();
         Message.send("/mkt export all [name]: Exports all session data as JSON.");
-        Message.send(
-                "/mkt export range [name] <min> [max]: Exports session data in range as JSON.");
+        Message.send("/mkt export range [name] <min> [max]: Exports session data in range as JSON.");
         Message.send("/mkt export last [name]: Exports last session data as JSON.");
         Message.send("/mkt export # [name]: Exports the #th index as JSON.");
         Message.send(
-                "View stats via /mkt trace. There are "
-                        + size
-                        + (size == 1 ? " entry" : " entries")
-                        + " available.");
+                "View stats via /mkt trace. There are " + size + (size == 1 ? " entry" : " entries") + " available.");
         return 1;
     }
 
@@ -282,8 +253,7 @@ public class MKTCommand {
     private static int exportLast(CommandContext<FabricClientCommandSource> ctx) {
         if (DropManager.instance.size() > 0) {
             String name = StringArgumentType.getString(ctx, "name");
-            DropManager.exportDrops(
-                    name, Collections.singletonList(DropManager.instance.getLast()));
+            DropManager.exportDrops(name, Collections.singletonList(DropManager.instance.getLast()));
         }
         return 1;
     }

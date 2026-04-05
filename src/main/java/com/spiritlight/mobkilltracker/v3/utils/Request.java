@@ -12,15 +12,13 @@ public class Request {
 
     public static String get(String url) {
         try {
-            HttpRequest request =
-                    HttpRequest.newBuilder()
-                            .uri(URI.create(url))
-                            .timeout(Duration.ofSeconds(10))
-                            .GET()
-                            .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
 
-            HttpResponse<String> response =
-                    CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
             return response.statusCode() == 200 ? response.body() : "";
         } catch (Exception e) {
@@ -31,16 +29,14 @@ public class Request {
 
     public static String post(String url, String body) {
         try {
-            HttpRequest request =
-                    HttpRequest.newBuilder()
-                            .uri(URI.create(url))
-                            .timeout(Duration.ofSeconds(10))
-                            .header("Content-Type", "application/json")
-                            .POST(HttpRequest.BodyPublishers.ofString(body))
-                            .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
 
-            HttpResponse<String> response =
-                    CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
             return response.statusCode() == 200 ? response.body() : "";
         } catch (Exception e) {

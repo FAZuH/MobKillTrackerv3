@@ -15,18 +15,17 @@ public abstract class Event {
     private final Object mutex = new Object();
 
     static {
-        Secret.setAccessor(
-                new EventBusAccessor() {
-                    @Override
-                    public void sign(Event event, UUID identifier) {
-                        event.sign(identifier);
-                    }
+        Secret.setAccessor(new EventBusAccessor() {
+            @Override
+            public void sign(Event event, UUID identifier) {
+                event.sign(identifier);
+            }
 
-                    @Override
-                    public boolean signed(Event event, UUID identifier) {
-                        return event.isSigned(identifier);
-                    }
-                });
+            @Override
+            public boolean signed(Event event, UUID identifier) {
+                return event.isSigned(identifier);
+            }
+        });
     }
 
     /**

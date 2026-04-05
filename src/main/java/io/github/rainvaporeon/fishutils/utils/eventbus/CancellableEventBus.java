@@ -51,17 +51,15 @@ public class CancellableEventBus extends EventBus {
             methods = o.getClass().getDeclaredMethods();
         }
 
-        Arrays.sort(
-                methods,
-                (left, right) -> {
-                    EventBusSubscriber l = left.getAnnotation(EventBusSubscriber.class);
-                    EventBusSubscriber r = right.getAnnotation(EventBusSubscriber.class);
-                    if (l == null && r == null) return 0;
-                    if (l == null) return -1;
-                    if (r == null) return 1;
-                    // the lower the priority, the higher the ordinal.
-                    return r.priority().ordinal() - l.priority().ordinal();
-                });
+        Arrays.sort(methods, (left, right) -> {
+            EventBusSubscriber l = left.getAnnotation(EventBusSubscriber.class);
+            EventBusSubscriber r = right.getAnnotation(EventBusSubscriber.class);
+            if (l == null && r == null) return 0;
+            if (l == null) return -1;
+            if (r == null) return 1;
+            // the lower the priority, the higher the ordinal.
+            return r.priority().ordinal() - l.priority().ordinal();
+        });
 
         for (Method method : methods) {
             condition:
@@ -70,65 +68,40 @@ public class CancellableEventBus extends EventBus {
                     && method.getParameterTypes()[0].isAssignableFrom((c = event.getClass()))) {
                 method.setAccessible(true);
                 if (a.value().length == 0 && a.only().length == 0) {
-                    boolean boo =
-                            ActionResult.run(() -> method.invoke(invocationTarget, event))
-                                    .onFail(
-                                            t -> {
-                                                if (t instanceof ReflectiveOperationException rf)
-                                                    throw new InternalError(
-                                                            "Failed to invoke " + method + ": ",
-                                                            rf);
-                                                if (this.errorHandler != null)
-                                                    this.errorHandler.accept(t);
-                                            })
-                                    .map(obj -> obj instanceof Boolean && (boolean) obj)
-                                    .getReturnValue();
+                    boolean boo = ActionResult.run(() -> method.invoke(invocationTarget, event))
+                            .onFail(t -> {
+                                if (t instanceof ReflectiveOperationException rf)
+                                    throw new InternalError("Failed to invoke " + method + ": ", rf);
+                                if (this.errorHandler != null) this.errorHandler.accept(t);
+                            })
+                            .map(obj -> obj instanceof Boolean && (boolean) obj)
+                            .getReturnValue();
                     if (boo) return true;
                 } else {
                     for (Class<?> clazz : a.only()) {
                         if (clazz == c) {
-                            boolean boo =
-                                    ActionResult.run(() -> method.invoke(invocationTarget, event))
-                                            .onFail(
-                                                    t -> {
-                                                        if (t
-                                                                instanceof
-                                                                ReflectiveOperationException
-                                                                rf)
-                                                            throw new InternalError(
-                                                                    "Failed to invoke "
-                                                                            + method
-                                                                            + ": ",
-                                                                    rf);
-                                                        if (this.errorHandler != null)
-                                                            this.errorHandler.accept(t);
-                                                    })
-                                            .map(obj -> obj instanceof Boolean && (boolean) obj)
-                                            .getReturnValue();
+                            boolean boo = ActionResult.run(() -> method.invoke(invocationTarget, event))
+                                    .onFail(t -> {
+                                        if (t instanceof ReflectiveOperationException rf)
+                                            throw new InternalError("Failed to invoke " + method + ": ", rf);
+                                        if (this.errorHandler != null) this.errorHandler.accept(t);
+                                    })
+                                    .map(obj -> obj instanceof Boolean && (boolean) obj)
+                                    .getReturnValue();
                             if (boo) return true;
                             break condition;
                         }
                     }
                     for (Class<?> clazz : a.value()) {
                         if (clazz.isAssignableFrom(c)) {
-                            boolean boo =
-                                    ActionResult.run(() -> method.invoke(invocationTarget, event))
-                                            .onFail(
-                                                    t -> {
-                                                        if (t
-                                                                instanceof
-                                                                ReflectiveOperationException
-                                                                rf)
-                                                            throw new InternalError(
-                                                                    "Failed to invoke "
-                                                                            + method
-                                                                            + ": ",
-                                                                    rf);
-                                                        if (this.errorHandler != null)
-                                                            this.errorHandler.accept(t);
-                                                    })
-                                            .map(obj -> obj instanceof Boolean && (boolean) obj)
-                                            .getReturnValue();
+                            boolean boo = ActionResult.run(() -> method.invoke(invocationTarget, event))
+                                    .onFail(t -> {
+                                        if (t instanceof ReflectiveOperationException rf)
+                                            throw new InternalError("Failed to invoke " + method + ": ", rf);
+                                        if (this.errorHandler != null) this.errorHandler.accept(t);
+                                    })
+                                    .map(obj -> obj instanceof Boolean && (boolean) obj)
+                                    .getReturnValue();
                             if (boo) return true;
                             break condition;
                         }

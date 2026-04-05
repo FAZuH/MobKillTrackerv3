@@ -13,8 +13,7 @@ public class Option {
     private final Object value;
 
     private Option(String key, Object value) {
-        if (map.containsKey(key))
-            throw new IllegalArgumentException("option " + key + " already registered");
+        if (map.containsKey(key)) throw new IllegalArgumentException("option " + key + " already registered");
         this.value = value;
         map.put(key, this);
     }

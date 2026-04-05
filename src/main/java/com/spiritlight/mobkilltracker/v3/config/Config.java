@@ -26,7 +26,8 @@ import java.nio.file.Files;
  *     Finally, annotate with {@link LegacyField} for backwards compatibility if required.
  */
 public class Config {
-    @ConfigIgnore private static final String FILE_NAME = "MobKillTracker3.json";
+    @ConfigIgnore
+    private static final String FILE_NAME = "MobKillTracker3.json";
 
     @SessionOnly // Mod enabled
     private boolean modEnabled = true;
@@ -89,8 +90,7 @@ public class Config {
             for (Field f : this.getClass().getDeclaredFields()) {
                 f.setAccessible(true);
                 // Skip session variables
-                if (f.isAnnotationPresent(SessionOnly.class)
-                        || f.isAnnotationPresent(ConfigIgnore.class)) continue;
+                if (f.isAnnotationPresent(SessionOnly.class) || f.isAnnotationPresent(ConfigIgnore.class)) continue;
                 // Ignore static fields
                 if (Modifier.isStatic(f.getModifiers())) continue;
                 if (Modifier.isFinal(f.getModifiers())) continue;
@@ -107,8 +107,7 @@ public class Config {
                 } else if (value instanceof ConfigObject) {
                     writer.name(name).value(((ConfigObject<?>) value).serialize());
                 } else {
-                    System.out.println(
-                            "Found ambiguous field " + name + " with type " + value.getClass());
+                    System.out.println("Found ambiguous field " + name + " with type " + value.getClass());
                 }
                 // Ignore other types
             }
@@ -128,17 +127,13 @@ public class Config {
         }
 
         JsonParser parser = new JsonParser();
-        JsonObject jsonObject =
-                (JsonObject)
-                        parser.parse(
-                                Files.newBufferedReader(
-                                        new File(FILE_NAME).toPath(), StandardCharsets.UTF_8));
+        JsonObject jsonObject = (JsonObject)
+                parser.parse(Files.newBufferedReader(new File(FILE_NAME).toPath(), StandardCharsets.UTF_8));
         try {
             for (Field f : this.getClass().getDeclaredFields()) {
                 f.setAccessible(true);
                 // Skip session variables
-                if (f.isAnnotationPresent(SessionOnly.class)
-                        || f.isAnnotationPresent(ConfigIgnore.class)) continue;
+                if (f.isAnnotationPresent(SessionOnly.class) || f.isAnnotationPresent(ConfigIgnore.class)) continue;
                 if (Modifier.isFinal(f.getModifiers())) continue;
                 if (Modifier.isStatic(f.getModifiers())) continue;
                 if (Modifier.isTransient(f.getModifiers())) continue;
@@ -150,11 +145,7 @@ public class Config {
                     for (String s : previousNames) {
                         element = jsonObject.get(s);
                         if (element != null) {
-                            System.out.println(
-                                    "Found defined legacy property "
-                                            + s
-                                            + " for given field "
-                                            + name);
+                            System.out.println("Found defined legacy property " + s + " for given field " + name);
                             break;
                         }
                     }
@@ -173,14 +164,11 @@ public class Config {
                     f.setInt(this, element.getAsInt());
                 } else if (ConfigObject.class.isAssignableFrom(type)) {
                     try {
-                        ConfigObject<?> cfg =
-                                ((ConfigObject<?>) type.newInstance())
-                                        .deserialize(element.getAsString());
+                        ConfigObject<?> cfg = ((ConfigObject<?>) type.newInstance()).deserialize(element.getAsString());
                         f.set(cfg, this);
                     } catch (Exception e) {
                         throw new JsonParseException(
-                                "Cannot find suitable type for name " + name + " with type " + type,
-                                e);
+                                "Cannot find suitable type for name " + name + " with type " + type, e);
                     }
                 } else {
                     System.out.println("Found ambiguous field " + name + " with type " + type);

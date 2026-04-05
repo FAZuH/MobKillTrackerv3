@@ -10,13 +10,12 @@ import java.util.Map;
 public class UtilityAccess {
     private static final UtilityAccess instance = new UtilityAccess();
 
-    private static final Map<String, Class<?>> classMap =
-            new HashMap<>() {
-                {
-                    StableField.ensureInitialized();
-                    put("stableFieldAccess", StableField.class);
-                }
-            };
+    private static final Map<String, Class<?>> classMap = new HashMap<>() {
+        {
+            StableField.ensureInitialized();
+            put("stableFieldAccess", StableField.class);
+        }
+    };
 
     @MayExplode
     public static UtilityAccess getInstance() {
@@ -29,8 +28,8 @@ public class UtilityAccess {
     }
 
     public static void setAccess(String parameter, Object value) {
-        Class<?> caller =
-                StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
+        Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+                .getCallerClass();
         Class<?> expected = UtilityAccess.classMap.get(parameter);
         if (caller != expected) throw new IllegalArgumentException("illegal caller class");
 
@@ -39,8 +38,7 @@ public class UtilityAccess {
             field.setAccessible(true);
             field.set(UtilityAccess.getInstance(), value);
         } catch (ReflectiveOperationException ex) {
-            throw new AssertionError(
-                    "failed to initialize access field " + parameter + "@" + value + ": ", ex);
+            throw new AssertionError("failed to initialize access field " + parameter + "@" + value + ": ", ex);
         }
     }
 

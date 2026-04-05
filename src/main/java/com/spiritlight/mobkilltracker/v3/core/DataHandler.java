@@ -46,10 +46,7 @@ public class DataHandler {
 
     public void start(int duration) {
         Main.LOGGER.info("[MKT] DataHandler.start() called with duration={}s", duration);
-        Main.LOGGER.info(
-                "[MKT] inProgress={}, lastHandler={}",
-                inProgress,
-                lastHandler != null ? "set" : "null");
+        Main.LOGGER.info("[MKT] inProgress={}, lastHandler={}", inProgress, lastHandler != null ? "set" : "null");
 
         inProgress = true;
         scheduler.schedule(this::stop, duration, TimeUnit.SECONDS);

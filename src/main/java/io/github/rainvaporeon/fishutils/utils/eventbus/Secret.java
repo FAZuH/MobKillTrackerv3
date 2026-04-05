@@ -11,10 +11,8 @@ public class Secret {
     }
 
     public static void setAccessor(EventBusAccessor accessor) {
-        if (StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass()
-                != Event.class) {
-            throw new SecurityException(
-                    "Secret#setAccessor(EventBusAccessor) may only be called internally.");
+        if (StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass() != Event.class) {
+            throw new SecurityException("Secret#setAccessor(EventBusAccessor) may only be called internally.");
         }
         Secret.accessor = accessor;
     }

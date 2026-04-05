@@ -82,7 +82,7 @@ checkstyle {
 
 spotless {
     java {
-        googleJavaFormat('1.17.0').aosp()
+        palantirJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()

@@ -57,8 +57,7 @@ public class Stopwatch {
      * @throws IllegalStateException if this key was not fenced.
      */
     public void record(String name) {
-        if (!timeMap.containsKey(name))
-            throw new IllegalStateException("unknown time name: " + name);
+        if (!timeMap.containsKey(name)) throw new IllegalStateException("unknown time name: " + name);
         records.put(name, System.nanoTime() - timeMap.get(name));
     }
 
@@ -81,11 +80,10 @@ public class Stopwatch {
      */
     public Map<String, Long> getAll() {
         Map<String, Long> map = new HashMap<>();
-        timeMap.forEach(
-                (str, time) -> {
-                    if (time == null) return;
-                    map.put(str, System.nanoTime() - time);
-                });
+        timeMap.forEach((str, time) -> {
+            if (time == null) return;
+            map.put(str, System.nanoTime() - time);
+        });
         map.put(null, System.nanoTime() - startTime);
         return map;
     }
@@ -112,47 +110,44 @@ public class Stopwatch {
      */
     public String getRecordString() {
         StringBuilder builder = new StringBuilder();
-        records.forEach(
-                (name, time) -> {
-                    builder.append(nameMap.getOrDefault(name, name))
-                            .append(":")
-                            .append(" ")
-                            .append(time)
-                            .append("ns")
-                            .append(" (~")
-                            .append(String.format("%.2f", time / 1000000d))
-                            .append("ms")
-                            .append(")")
-                            .append("\n");
-                });
+        records.forEach((name, time) -> {
+            builder.append(nameMap.getOrDefault(name, name))
+                    .append(":")
+                    .append(" ")
+                    .append(time)
+                    .append("ns")
+                    .append(" (~")
+                    .append(String.format("%.2f", time / 1000000d))
+                    .append("ms")
+                    .append(")")
+                    .append("\n");
+        });
         return builder.toString();
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        timeMap.forEach(
-                (name, time) -> {
-                    builder.append(nameMap.getOrDefault(name, name))
-                            .append(":")
-                            .append(" Since ")
-                            .append(time)
-                            .append("\n");
-                });
+        timeMap.forEach((name, time) -> {
+            builder.append(nameMap.getOrDefault(name, name))
+                    .append(":")
+                    .append(" Since ")
+                    .append(time)
+                    .append("\n");
+        });
         if (!records.isEmpty()) {
-            records.forEach(
-                    (name, time) -> {
-                        builder.append(nameMap.getOrDefault(name, name))
-                                .append(":")
-                                .append(" ")
-                                .append(time)
-                                .append("ns")
-                                .append(" (~")
-                                .append(String.format("%.2f", time / 1000000d))
-                                .append("ms")
-                                .append(")")
-                                .append("\n");
-                    });
+            records.forEach((name, time) -> {
+                builder.append(nameMap.getOrDefault(name, name))
+                        .append(":")
+                        .append(" ")
+                        .append(time)
+                        .append("ns")
+                        .append(" (~")
+                        .append(String.format("%.2f", time / 1000000d))
+                        .append("ms")
+                        .append(")")
+                        .append("\n");
+            });
         }
         return builder.toString();
     }

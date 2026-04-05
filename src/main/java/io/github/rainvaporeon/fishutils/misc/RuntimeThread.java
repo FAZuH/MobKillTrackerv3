@@ -8,12 +8,9 @@ public class RuntimeThread {
     @MayExplode(MayExplode.Severity.IRRECOVERABLE)
     public static void interruptAll() {
         Thread current = Thread.currentThread();
-        Thread.getAllStackTraces()
-                .keySet()
-                .forEach(
-                        thread -> {
-                            if (thread != current) thread.interrupt();
-                        });
+        Thread.getAllStackTraces().keySet().forEach(thread -> {
+            if (thread != current) thread.interrupt();
+        });
         current.interrupt();
     }
 }

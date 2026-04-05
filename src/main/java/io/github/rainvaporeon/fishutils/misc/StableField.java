@@ -14,7 +14,9 @@ import java.util.Objects;
  * @since 1.2.6
  */
 public class StableField<T> implements Serializable, Cloneable {
-    @DelegatesToShadow.Target private T t;
+    @DelegatesToShadow.Target
+    private T t;
+
     private boolean modified;
 
     /** Creates a stable field with the default value as {@code null} */
@@ -117,13 +119,11 @@ public class StableField<T> implements Serializable, Cloneable {
     }
 
     static {
-        UtilityAccess.setAccess(
-                "stableFieldAccess",
-                new StableFieldAccess() {
-                    @Override
-                    public <T> void updateField(StableField<T> field, T value) {
-                        field.t = value;
-                    }
-                });
+        UtilityAccess.setAccess("stableFieldAccess", new StableFieldAccess() {
+            @Override
+            public <T> void updateField(StableField<T> field, T value) {
+                field.t = value;
+            }
+        });
     }
 }

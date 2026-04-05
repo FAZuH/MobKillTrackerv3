@@ -42,38 +42,32 @@ public class Main implements ClientModInitializer {
             LOGGER.error("Cannot fetch the API: ", e);
         }
 
-        ClientCommandRegistrationCallback.EVENT.register(
-                (dispatcher, registryAccess) -> {
-                    MKTCommand.register(dispatcher);
-                    MKTDebugCommand.register(dispatcher);
-                });
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            MKTCommand.register(dispatcher);
+            MKTDebugCommand.register(dispatcher);
+        });
 
         System.out.println("[MKT-DEBUG] Mod initialized. Chat interception via mixin.");
 
-        ClientPlayConnectionEvents.DISCONNECT.register(
-                (handler, client) -> {
-                    EventHandler.onDisconnect();
-                });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            EventHandler.onDisconnect();
+        });
 
-        ClientTickEvents.END_CLIENT_TICK.register(
-                client -> {
-                    if (client.world != null) {
-                        boolean inProgress = DataHandler.isInProgress();
-                        DataHandler lastHandler = DataHandler.getLastHandler();
-                        if (inProgress && lastHandler != null) {
-                            try {
-                                client.world
-                                        .getEntities()
-                                        .forEach(
-                                                entity -> {
-                                                    lastHandler.getHandler().onEntityUpdate(entity);
-                                                });
-                            } catch (Exception e) {
-                                LOGGER.error("[MKT] Error processing entities: ", e);
-                            }
-                        }
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.world != null) {
+                boolean inProgress = DataHandler.isInProgress();
+                DataHandler lastHandler = DataHandler.getLastHandler();
+                if (inProgress && lastHandler != null) {
+                    try {
+                        client.world.getEntities().forEach(entity -> {
+                            lastHandler.getHandler().onEntityUpdate(entity);
+                        });
+                    } catch (Exception e) {
+                        LOGGER.error("[MKT] Error processing entities: ", e);
                     }
-                });
+                }
+            }
+        });
     }
 
     public static void export() {
@@ -84,9 +78,7 @@ public class Main implements ClientModInitializer {
         } catch (Throwable t) {
             t.printStackTrace();
             die(t);
-            Thread.currentThread()
-                    .getUncaughtExceptionHandler()
-                    .uncaughtException(Thread.currentThread(), t);
+            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), t);
         }
     }
 
@@ -98,9 +90,7 @@ public class Main implements ClientModInitializer {
         } catch (Throwable t) {
             t.printStackTrace();
             die(t);
-            Thread.currentThread()
-                    .getUncaughtExceptionHandler()
-                    .uncaughtException(Thread.currentThread(), t);
+            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), t);
         }
     }
 

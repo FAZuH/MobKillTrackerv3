@@ -5,29 +5,28 @@ import java.io.File;
 
 public final class Loggers {
 
-    public static final ILogger NO_OP =
-            new ILogger() {
-                @Override
-                public void newline() {}
+    public static final ILogger NO_OP = new ILogger() {
+        @Override
+        public void newline() {}
 
-                @Override
-                public void success(String message, Throwable t) {}
+        @Override
+        public void success(String message, Throwable t) {}
 
-                @Override
-                public void info(String message, Throwable t) {}
+        @Override
+        public void info(String message, Throwable t) {}
 
-                @Override
-                public void warn(String message, Throwable t) {}
+        @Override
+        public void warn(String message, Throwable t) {}
 
-                @Override
-                public void error(String message, Throwable t) {}
+        @Override
+        public void error(String message, Throwable t) {}
 
-                @Override
-                public void fatal(String message, Throwable t) {}
+        @Override
+        public void fatal(String message, Throwable t) {}
 
-                @Override
-                public void debug(String message) {}
-            };
+        @Override
+        public void debug(String message) {}
+    };
 
     private static final StableField<File> DEFAULT = new StableField<>(null);
 
@@ -61,13 +60,12 @@ public final class Loggers {
      * @return a logger
      */
     public static Logger getThreadLogger(File out) {
-        final Logger logger =
-                new Logger(
-                        "Thread #"
-                                + Thread.currentThread().getId()
-                                + "/"
-                                + Thread.currentThread().getName(),
-                        out);
+        final Logger logger = new Logger(
+                "Thread #"
+                        + Thread.currentThread().getId()
+                        + "/"
+                        + Thread.currentThread().getName(),
+                out);
         logger.configured();
         return logger;
     }

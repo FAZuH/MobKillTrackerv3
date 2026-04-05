@@ -66,12 +66,9 @@ public class EventBus {
         registeredInstances.add(identifier);
         this.identifier = identifier;
         this.processDuplicates = processDuplicates;
-        this.errorHandler =
-                t -> {
-                    throw (t instanceof RuntimeException
-                            ? (RuntimeException) t
-                            : new RuntimeException(t));
-                };
+        this.errorHandler = t -> {
+            throw (t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t));
+        };
     }
 
     public EventBus() {
@@ -130,8 +127,7 @@ public class EventBus {
     }
 
     protected void recursionCheck(EventBus parent) {
-        if (this.inheritances.contains(parent))
-            throw new IllegalStateException("recursive inheritance");
+        if (this.inheritances.contains(parent)) throw new IllegalStateException("recursive inheritance");
         this.inheritances.forEach(this::recursionCheck);
     }
 
@@ -149,17 +145,15 @@ public class EventBus {
         }
 
         // 1.2.15: Added EventBus priority
-        Arrays.sort(
-                methods,
-                (left, right) -> {
-                    EventBusSubscriber l = left.getAnnotation(EventBusSubscriber.class);
-                    EventBusSubscriber r = right.getAnnotation(EventBusSubscriber.class);
-                    if (l == null && r == null) return 0;
-                    if (l == null) return -1;
-                    if (r == null) return 1;
-                    // the lower the priority, the higher the ordinal.
-                    return r.priority().ordinal() - l.priority().ordinal();
-                });
+        Arrays.sort(methods, (left, right) -> {
+            EventBusSubscriber l = left.getAnnotation(EventBusSubscriber.class);
+            EventBusSubscriber r = right.getAnnotation(EventBusSubscriber.class);
+            if (l == null && r == null) return 0;
+            if (l == null) return -1;
+            if (r == null) return 1;
+            // the lower the priority, the higher the ordinal.
+            return r.priority().ordinal() - l.priority().ordinal();
+        });
 
         for (Method method : methods) {
             condition:
@@ -173,30 +167,22 @@ public class EventBus {
                     for (Class<?> clazz : a.only()) {
                         if (clazz == c) {
                             ActionResult.run(() -> method.invoke(invocationTarget, event))
-                                    .onFail(
-                                            t -> {
-                                                if (t instanceof ReflectiveOperationException rf)
-                                                    throw new InternalError(
-                                                            "Failed to invoke " + method + ": ",
-                                                            rf);
-                                                if (this.errorHandler != null)
-                                                    this.errorHandler.accept(t);
-                                            });
+                                    .onFail(t -> {
+                                        if (t instanceof ReflectiveOperationException rf)
+                                            throw new InternalError("Failed to invoke " + method + ": ", rf);
+                                        if (this.errorHandler != null) this.errorHandler.accept(t);
+                                    });
                             break condition;
                         }
                     }
                     for (Class<?> clazz : a.value()) {
                         if (clazz.isAssignableFrom(c)) {
                             ActionResult.run(() -> method.invoke(invocationTarget, event))
-                                    .onFail(
-                                            t -> {
-                                                if (t instanceof ReflectiveOperationException rf)
-                                                    throw new InternalError(
-                                                            "Failed to invoke " + method + ": ",
-                                                            rf);
-                                                if (this.errorHandler != null)
-                                                    this.errorHandler.accept(t);
-                                            });
+                                    .onFail(t -> {
+                                        if (t instanceof ReflectiveOperationException rf)
+                                            throw new InternalError("Failed to invoke " + method + ": ", rf);
+                                        if (this.errorHandler != null) this.errorHandler.accept(t);
+                                    });
                             break condition;
                         }
                     }
@@ -209,20 +195,15 @@ public class EventBus {
         EventBusSubscriber a;
         Class<?> c;
         int cnt;
-        Method[] methods =
-                o instanceof Class<?>
-                        ? ((Class<?>) o).getMethods()
-                        : o.getClass().getDeclaredMethods();
+        Method[] methods = o instanceof Class<?>
+                ? ((Class<?>) o).getMethods()
+                : o.getClass().getDeclaredMethods();
         for (Method method : methods) {
             if ((a = method.getAnnotation(EventBusSubscriber.class)) != null) {
                 // only one parameter for a listening method
                 if ((cnt = method.getParameterCount()) != 1) {
                     throw new InvalidSubscriberException(
-                            "annotated method "
-                                    + method
-                                    + " has "
-                                    + cnt
-                                    + " parameters, expected 1");
+                            "annotated method " + method + " has " + cnt + " parameters, expected 1");
                 }
 
                 if (Event.class.isAssignableFrom((c = method.getParameterTypes()[0]))) {
@@ -230,44 +211,29 @@ public class EventBus {
                         // parameter is not event
                         if (!Event.class.isAssignableFrom(clazz)) {
                             throw new InvalidSubscriberException(
-                                    "class "
-                                            + clazz
-                                            + " in annotated member "
-                                            + method
-                                            + " is not an event type");
+                                    "class " + clazz + " in annotated member " + method + " is not an event type");
                         }
                         // listening to other classes other than parent is a no no
                         if (!c.isAssignableFrom(clazz)) {
                             throw new InvalidSubscriberException(
-                                    "class "
-                                            + clazz
-                                            + " is incompatible for listening event type "
-                                            + c);
+                                    "class " + clazz + " is incompatible for listening event type " + c);
                         }
                     }
                     for (Class<?> clazz : a.only()) {
                         // parameter is not event
                         if (!Event.class.isAssignableFrom(clazz)) {
                             throw new InvalidSubscriberException(
-                                    "class "
-                                            + clazz
-                                            + " in annotated member "
-                                            + method
-                                            + " is not an event type");
+                                    "class " + clazz + " in annotated member " + method + " is not an event type");
                         }
                         // listening to other classes other than parent is a no no
                         if (!c.isAssignableFrom(clazz)) {
                             throw new InvalidSubscriberException(
-                                    "class "
-                                            + clazz
-                                            + " is incompatible for listening event type "
-                                            + c);
+                                    "class " + clazz + " is incompatible for listening event type " + c);
                         }
                     }
                     return; // yay!!! we found one, this qualifies as a subscriber then
                 } else {
-                    throw new InvalidSubscriberException(
-                            "class " + c + " is not an instance of Event");
+                    throw new InvalidSubscriberException("class " + c + " is not an instance of Event");
                 }
             }
         }

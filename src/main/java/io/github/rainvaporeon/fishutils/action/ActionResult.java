@@ -41,8 +41,7 @@ public final class ActionResult<T> implements Action<T> {
     private final Result result; // The result (non-null)
     private final T returnValue; // Holding value (nullable)
     private final Throwable throwable; // Exception (null if successful)
-    private boolean
-            exceptionHandled; // Exception handled (@throws throwable if false and throwable !=
+    private boolean exceptionHandled; // Exception handled (@throws throwable if false and throwable !=
 
     // null)
 
@@ -300,8 +299,7 @@ public final class ActionResult<T> implements Action<T> {
      */
     public <X extends Throwable> ActionResult<T> throwIf(Class<X> type) throws X {
         if (this.throwable == null) return this;
-        if (Objects.requireNonNull(type).isAssignableFrom(this.throwable.getClass()))
-            throw (X) this.throwable;
+        if (Objects.requireNonNull(type).isAssignableFrom(this.throwable.getClass())) throw (X) this.throwable;
         return this;
     }
 

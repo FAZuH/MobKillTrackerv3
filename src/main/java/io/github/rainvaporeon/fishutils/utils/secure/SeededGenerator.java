@@ -19,12 +19,9 @@ public class SeededGenerator {
     private long genSeed;
     private final boolean allowModifications;
 
-    public static final SeededGenerator ALPHABET_ONLY =
-            new SeededGenerator(ALPHABETS, YES, null, false);
-    public static final SeededGenerator NUMERICS_ONLY =
-            new SeededGenerator(NUMERICAL, YES, null, false);
-    public static final SeededGenerator ALPHABET_NUMERICS =
-            new SeededGenerator(ALPHABET_NUMERICAL, YES, null, false);
+    public static final SeededGenerator ALPHABET_ONLY = new SeededGenerator(ALPHABETS, YES, null, false);
+    public static final SeededGenerator NUMERICS_ONLY = new SeededGenerator(NUMERICAL, YES, null, false);
+    public static final SeededGenerator ALPHABET_NUMERICS = new SeededGenerator(ALPHABET_NUMERICAL, YES, null, false);
 
     public SeededGenerator(String allowedCharacters) {
         this(allowedCharacters, Secure.NO);
@@ -34,8 +31,7 @@ public class SeededGenerator {
         this(allowedCharacters, secure, null);
     }
 
-    public SeededGenerator(
-            String allowedCharacters, Secure secure, Supplier<? extends Random> randomSupplier) {
+    public SeededGenerator(String allowedCharacters, Secure secure, Supplier<? extends Random> randomSupplier) {
         this(allowedCharacters, secure, randomSupplier, true);
     }
 
@@ -46,12 +42,11 @@ public class SeededGenerator {
             boolean allowModifications) {
         this.allowedCharacters = allowedCharacters;
         this.genSeed = System.nanoTime();
-        this.randomInst =
-                randomSupplier == null
-                        ? (secure == YES
-                                ? () -> new SecureRandom(Numbers.getBytes(this.getSeed()))
-                                : () -> new Random(this.getSeed()))
-                        : randomSupplier;
+        this.randomInst = randomSupplier == null
+                ? (secure == YES
+                        ? () -> new SecureRandom(Numbers.getBytes(this.getSeed()))
+                        : () -> new Random(this.getSeed()))
+                : randomSupplier;
         this.allowModifications = allowModifications;
     }
 
@@ -66,14 +61,12 @@ public class SeededGenerator {
     public IntStream generate() {
         nextSeed();
         final Random random = randomInst.get();
-        return IntStream.generate(
-                () -> allowedCharacters.charAt(random.nextInt(allowedCharacters.length())));
+        return IntStream.generate(() -> allowedCharacters.charAt(random.nextInt(allowedCharacters.length())));
     }
 
     /** XOR-s the current seed */
     public void addNoise(long noise) {
-        if (!allowModifications)
-            throw new UnsupportedOperationException("Modifications not allowed");
+        if (!allowModifications) throw new UnsupportedOperationException("Modifications not allowed");
         this.genSeed ^= noise;
     }
 
@@ -82,8 +75,7 @@ public class SeededGenerator {
     }
 
     public void setSeed(long seed) {
-        if (!allowModifications)
-            throw new UnsupportedOperationException("Modifications not allowed");
+        if (!allowModifications) throw new UnsupportedOperationException("Modifications not allowed");
         this.genSeed = seed;
     }
 
@@ -96,8 +88,7 @@ public class SeededGenerator {
      * therefore, is unable to provide a consistent output value
      */
     public void refreshSeed() {
-        if (!allowModifications)
-            throw new UnsupportedOperationException("Modifications not allowed");
+        if (!allowModifications) throw new UnsupportedOperationException("Modifications not allowed");
         this.setSeed(System.nanoTime());
     }
 

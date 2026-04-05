@@ -75,8 +75,7 @@ public class DropManager {
                 array.add(stat.toJson());
             }
             writer.write(array.toString());
-            Message.info(
-                    "Exported data! You can find them in your minecraft folder, under the mkt_out folder.");
+            Message.info("Exported data! You can find them in your minecraft folder, under the mkt_out folder.");
         } catch (IOException e) {
             Message.error("An error has occurred: Check the logs for details.");
             e.printStackTrace();

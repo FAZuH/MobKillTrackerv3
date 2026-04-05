@@ -83,59 +83,58 @@ public class EventHandler {
         int kills = drops.getKills();
         double ingRate = (ingDrops == 0 ? 0 : (double) kills / ingDrops);
         double itemRate = (itemDrops == 0 ? 0 : (double) kills / itemDrops);
-        Message.info(
-                "\n"
-                        + "§3§l Mob Totem Ended\n"
-                        + "§rTotal Mobs Killed: §c"
-                        + kills
-                        + "\n"
-                        + "§rTotal Items Dropped: §a"
-                        + totalDrops
-                        + "\n"
-                        + "\n"
-                        + "§6§l Item Summary: \n"
-                        + "§rIngredient Drops: §b[✫✫✫] §rx"
-                        + drops.getIngredient3()
-                        + " §d[✫✫§8✫§d] §rx"
-                        + drops.getIngredient2()
-                        + " §e[✫§8✫✫§e] §rx"
-                        + drops.getIngredient1()
-                        + " §7[§8✫✫✫§7] §rx"
-                        + drops.getIngredient0()
-                        + "\n"
-                        + "§5§lMythic §rDrops: "
-                        + drops.getMythic()
-                        + "\n"
-                        + "§cFabled §rDrops: "
-                        + drops.getFabled()
-                        + "\n"
-                        + "§bLegendary §rDrops: "
-                        + drops.getLegendary()
-                        + "\n"
-                        + "§dRare §rDrops: "
-                        + drops.getRare()
-                        + "\n"
-                        + "§eUnique §rDrops: "
-                        + drops.getUnique()
-                        + "\n"
-                        + "§rNormal §rDrops: "
-                        + drops.getNormal()
-                        + "\n"
-                        + "Total drops: Item "
-                        + itemDrops
-                        + ", Ingredients "
-                        + ingDrops
-                        + "\n §c§lAdvanced details:\n"
-                        + "§rItem Rate: "
-                        + df.format(itemRate)
-                        + " §7(Mobs/item)"
-                        + "\n"
-                        + "§rIngredient Rate: "
-                        + df.format(ingRate)
-                        + " §7(Mobs/Ingredient)"
-                        + "\n"
-                        + "§rRarity Index: "
-                        + drops.getRarityIndex());
+        Message.info("\n"
+                + "§3§l Mob Totem Ended\n"
+                + "§rTotal Mobs Killed: §c"
+                + kills
+                + "\n"
+                + "§rTotal Items Dropped: §a"
+                + totalDrops
+                + "\n"
+                + "\n"
+                + "§6§l Item Summary: \n"
+                + "§rIngredient Drops: §b[✫✫✫] §rx"
+                + drops.getIngredient3()
+                + " §d[✫✫§8✫§d] §rx"
+                + drops.getIngredient2()
+                + " §e[✫§8✫✫§e] §rx"
+                + drops.getIngredient1()
+                + " §7[§8✫✫✫§7] §rx"
+                + drops.getIngredient0()
+                + "\n"
+                + "§5§lMythic §rDrops: "
+                + drops.getMythic()
+                + "\n"
+                + "§cFabled §rDrops: "
+                + drops.getFabled()
+                + "\n"
+                + "§bLegendary §rDrops: "
+                + drops.getLegendary()
+                + "\n"
+                + "§dRare §rDrops: "
+                + drops.getRare()
+                + "\n"
+                + "§eUnique §rDrops: "
+                + drops.getUnique()
+                + "\n"
+                + "§rNormal §rDrops: "
+                + drops.getNormal()
+                + "\n"
+                + "Total drops: Item "
+                + itemDrops
+                + ", Ingredients "
+                + ingDrops
+                + "\n §c§lAdvanced details:\n"
+                + "§rItem Rate: "
+                + df.format(itemRate)
+                + " §7(Mobs/item)"
+                + "\n"
+                + "§rIngredient Rate: "
+                + df.format(ingRate)
+                + " §7(Mobs/Ingredient)"
+                + "\n"
+                + "§rRarity Index: "
+                + drops.getRarityIndex());
     }
 
     public static void termination(TerminationEvent event) {

@@ -44,24 +44,18 @@ public class ItemDatabase {
         // Load from full result (contains both items and ingredients)
         loadFromFullResult();
 
-        System.out.println(
-                "[MKT-DEBUG] Loaded "
-                        + itemMap.size()
-                        + " items and "
-                        + ingredientMap.size()
-                        + " ingredients from bundled data");
+        System.out.println("[MKT-DEBUG] Loaded "
+                + itemMap.size()
+                + " items and "
+                + ingredientMap.size()
+                + " ingredients from bundled data");
         System.out.println("Items loaded.");
     }
 
     private void loadFromFullResult() {
-        try (BufferedReader reader =
-                new BufferedReader(
-                        new InputStreamReader(
-                                Objects.requireNonNull(
-                                        getClass()
-                                                .getResourceAsStream(
-                                                        "/data/wynncraft-items-full.json")),
-                                StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                Objects.requireNonNull(getClass().getResourceAsStream("/data/wynncraft-items-full.json")),
+                StandardCharsets.UTF_8))) {
             JsonElement dataElement = new Gson().fromJson(reader, JsonElement.class);
 
             if (dataElement == null || !dataElement.isJsonObject()) {

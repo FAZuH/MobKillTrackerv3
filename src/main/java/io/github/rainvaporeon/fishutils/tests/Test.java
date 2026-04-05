@@ -77,11 +77,10 @@ public class Test<T> implements TestComponent<T> {
             if (clazz.isAssignableFrom(lastThrowable.getClass())) {
                 return this;
             } else {
-                throw new RuntimeException(
-                        "Expected "
-                                + clazz.getSimpleName()
-                                + ", got "
-                                + lastThrowable.getClass().getSimpleName());
+                throw new RuntimeException("Expected "
+                        + clazz.getSimpleName()
+                        + ", got "
+                        + lastThrowable.getClass().getSimpleName());
             }
         }
         throw new RuntimeException("Expected " + clazz.getSimpleName() + ", got nothing");
@@ -95,8 +94,7 @@ public class Test<T> implements TestComponent<T> {
     }
 
     private void throwIfPresent() {
-        if (lastThrowable != null)
-            throw new RuntimeException("Unhandled exception: ", lastThrowable);
+        if (lastThrowable != null) throw new RuntimeException("Unhandled exception: ", lastThrowable);
     }
 
     private String toString(String... content) {
