@@ -10,7 +10,6 @@ import com.spiritlight.mobkilltracker.v3.utils.drops.DropManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,10 +48,7 @@ public class Main implements ClientModInitializer {
                     MKTDebugCommand.register(dispatcher);
                 });
 
-        ClientReceiveMessageEvents.GAME.register(
-                (message, overlay) -> {
-                    EventHandler.onMessageReceived(message.getString());
-                });
+        System.out.println("[MKT-DEBUG] Mod initialized. Chat interception via mixin.");
 
         ClientPlayConnectionEvents.DISCONNECT.register(
                 (handler, client) -> {

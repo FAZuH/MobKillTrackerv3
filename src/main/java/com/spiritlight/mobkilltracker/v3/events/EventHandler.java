@@ -34,7 +34,11 @@ public class EventHandler {
 
     public static void onMessageReceived(String message) {
         if (!Main.configuration.isModEnabled()) return;
-        if ((message.contains("placed a mob totem") && !message.contains("["))) {
+        // Debug
+        Main.LOGGER.info("[MKT] Chat message received: {}", message);
+        if (message.contains("has placed a mob totem in")
+                || message.contains("wynncraft.com/store")) {
+            Main.LOGGER.info("[MKT] Totem placement detected!");
             onTotemPlacement(new TotemEvent());
         }
     }
