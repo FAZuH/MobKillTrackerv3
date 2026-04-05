@@ -9,8 +9,7 @@ classDiagram
         +String NAME
         +String VERSION
         +Config configuration
-        +preInit() void
-        +init() void
+        +onInitializeClient() void
         +export() void
         +save() void
     }
@@ -71,8 +70,11 @@ classDiagram
     }
 
     class MKTCommand {
-        +getName() String
-        +execute() void
+        +register() void
+    }
+
+    class MKTDebugCommand {
+        +register() void
     }
 
     class Message {
@@ -96,21 +98,8 @@ classDiagram
         +getType() Type
     }
 
-    class ExecutionEvent {
-        +shouldExecute() boolean
-        +getAction() Runnable
-    }
-
-    class Event {
-        <<Forge>>
-    }
-
-    class CommandBase {
-        <<Forge>>
-    }
-
-    class IClientCommand {
-        <<Forge>>
+    class ClientModInitializer {
+        <<Fabric API>>
     }
 
     class Request {
@@ -125,19 +114,16 @@ classDiagram
     EventHandler o-- DataHandler : manages
 
     DataHandler --|> DataHandler.ListenerHandler : extends
-    TotemEvent --|> Event
-    CompletionEvent --|> Event
-    TerminationEvent --|> Event
-    ExecutionEvent --|> Event
-    MKTCommand --|> CommandBase : extends
 
-    MKTCommand ..|> IClientCommand : implements
+    Main ..|> ClientModInitializer : implements
 
     Main --> EventHandler : registers
     EntityEventHandler --> ItemDatabase : queries
     DataHandler --> DropStatistics : collects
     MKTCommand --> DropManager : queries
     MKTCommand --> Message : outputs
+    MKTDebugCommand --> DropManager : queries
+    MKTDebugCommand --> Message : outputs
     CompletionEvent --> DataHandler : references
 
     EventHandler ..> DataHandler : creates

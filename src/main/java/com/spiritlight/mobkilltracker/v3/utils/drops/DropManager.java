@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DropManager {
     // We use LinkedList implementation here for ease of accessing last element
@@ -17,7 +17,7 @@ public class DropManager {
 
     public static final DropManager instance = new DropManager();
 
-    public void insert(@Nonnull DropStatistics stats) {
+    public void insert(@NotNull DropStatistics stats) {
         this.sessionData.add(stats);
     }
 
@@ -37,12 +37,12 @@ public class DropManager {
         sessionData.remove(index);
     }
 
-    @Nonnull
+    @NotNull
     public List<DropStatistics> getBackingList() {
         return sessionData;
     }
 
-    @Nonnull
+    @NotNull
     public Iterator<DropStatistics> iterator() {
         return sessionData.iterator();
     }

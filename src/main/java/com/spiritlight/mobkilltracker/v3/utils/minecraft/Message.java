@@ -2,15 +2,12 @@ package com.spiritlight.mobkilltracker.v3.utils.minecraft;
 
 import com.spiritlight.mobkilltracker.v3.Main;
 import com.spiritlight.mobkilltracker.v3.enums.Color;
-import com.spiritlight.mobkilltracker.v3.events.ExecutionEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 
 public class Message {
     public static final String TITLE =
@@ -50,7 +47,7 @@ public class Message {
     }
 
     public static void send(String s) {
-        send0(new TextComponentString(TITLE + s));
+        send0(Text.literal(TITLE + s));
     }
 
     public static void send(String... s) {
@@ -63,29 +60,34 @@ public class Message {
     }
 
     public static void sendRaw(String s) {
-        send0(new TextComponentString(s));
+        send0(Text.literal(s));
     }
 
-    public static void sendRaw(ITextComponent component) {
+    public static void sendRaw(Text component) {
         send0(component);
     }
 
     public static String formatJson(String s) {
-        return s.replace("{", TextFormatting.AQUA + "{" + TextFormatting.GOLD)
-                .replace("}", TextFormatting.AQUA + "}" + TextFormatting.GOLD)
-                .replace("[", TextFormatting.RESET + "[" + TextFormatting.GOLD)
-                .replace("]", TextFormatting.RESET + "]" + TextFormatting.GOLD)
-                .replace(",", TextFormatting.RESET + "," + TextFormatting.GOLD)
-                .replace(":", TextFormatting.RESET + ":" + TextFormatting.AQUA)
-                .replace("'", TextFormatting.YELLOW + "'" + TextFormatting.RESET)
-                .replace("\"", TextFormatting.GREEN + "\"" + TextFormatting.GOLD);
+        return s.replace("{", Color.AQUA + "{" + Color.GOLD)
+                .replace("}", Color.AQUA + "}" + Color.GOLD)
+                .replace("[", Color.RESET + "[" + Color.GOLD)
+                .replace("]", Color.RESET + "]" + Color.GOLD)
+                .replace(",", Color.RESET + "," + Color.GOLD)
+                .replace(":", Color.RESET + ":" + Color.AQUA)
+                .replace("'", Color.YELLOW + "'" + Color.RESET)
+                .replace("\"", Color.GREEN + "\"" + Color.GOLD);
     }
 
-    private static void send0(ITextComponent content) {
-        if (Minecraft.getMinecraft().player == null) return;
-        MinecraftForge.EVENT_BUS.post(
-                new ExecutionEvent(
-                        Main.class, () -> Minecraft.getMinecraft().player.sendMessage(content)));
+    private static void send0(Text content) {
+        if (MinecraftClient.getInstance().player == null) return;
+        // In Fabric, we can just send it directly or use client executor
+        MinecraftClient.getInstance()
+                .execute(
+                        () -> {
+                            if (MinecraftClient.getInstance().player != null) {
+                                MinecraftClient.getInstance().player.sendMessage(content, false);
+                            }
+                        });
     }
 
     public static Builder builder() {
@@ -96,66 +98,64 @@ public class Message {
         return new Builder(s);
     }
 
-    public static ITextComponent of(String content) {
-        return new TextComponentString(content);
+    public static Text of(String content) {
+        return Text.literal(content);
     }
 
     public static class Builder {
-        private final ITextComponent component;
+        private MutableText component;
 
         public Builder() {
             this("");
         }
 
         public Builder(String content) {
-            this.component = new TextComponentString(content);
+            this.component = Text.literal(content);
         }
 
         public Builder addClickEvent(ClickEvent.Action action, String value) {
-            this.component.setStyle(
-                    component.getStyle().setClickEvent(new ClickEvent(action, value)));
+            this.component =
+                    this.component.styled(
+                            style -> style.withClickEvent(new ClickEvent(action, value)));
             return this;
         }
 
-        public Builder addHoverEvent(HoverEvent.Action action, ITextComponent value) {
-            this.component.setStyle(
-                    component.getStyle().setHoverEvent(new HoverEvent(action, value)));
+        public Builder addHoverEvent(HoverEvent.Action<Text> action, Text value) {
+            this.component =
+                    this.component.styled(
+                            style -> style.withHoverEvent(new HoverEvent(action, value)));
             return this;
         }
 
-        public Builder addHoverEvent(HoverEvent.Action action, String value) {
-            this.component.setStyle(
-                    component
-                            .getStyle()
-                            .setHoverEvent(new HoverEvent(action, new TextComponentString(value))));
+        public Builder addHoverEvent(HoverEvent.Action<Text> action, String value) {
+            this.component =
+                    this.component.styled(
+                            style ->
+                                    style.withHoverEvent(
+                                            new HoverEvent(action, Text.literal(value))));
             return this;
         }
 
-        public Builder addSibling(ITextComponent component) {
-            this.component.appendSibling(component);
+        public Builder addSibling(Text component) {
+            this.component = this.component.append(component);
             return this;
         }
 
         public Builder appendText(String value) {
-            this.component.appendText(value);
+            this.component = this.component.append(Text.literal(value));
             return this;
         }
 
         public Builder setStyle(Style style) {
-            this.component.setStyle(style);
+            this.component = this.component.fillStyle(style);
             return this;
         }
 
-        /**
-         * @return The component so far, technically no building process is needed, so the component
-         *     is just given without modification
-         */
-        public ITextComponent get() {
+        public Text get() {
             return component;
         }
 
-        // if you insist
-        public ITextComponent build() {
+        public Text build() {
             return this.get();
         }
     }

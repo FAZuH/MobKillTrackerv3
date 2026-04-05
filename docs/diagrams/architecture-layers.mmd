@@ -7,7 +7,7 @@ graph LR
     subgraph "Event Layer"
         EVH[EventHandler]
         EEH[EntityEventHandler]
-        EVENTS[Custom Events<br/>TotemEvent<br/>CompletionEvent<br/>TerminationEvent<br/>ExecutionEvent]
+        EVENTS[Custom Events<br/>TotemEvent<br/>CompletionEvent<br/>TerminationEvent]
     end
 
     subgraph "Core Layer"
@@ -23,16 +23,12 @@ graph LR
     end
 
     subgraph "External Integration"
-        MC[Minecraft/Forge API]
+        MC[Minecraft/Fabric API]
         API[Wynncraft API]
     end
 
     subgraph "Utilities"
         UTILS[Shared Constants<br/>Math Utilities<br/>Collections]
-    end
-
-    subgraph "Adapters Layer"
-        FAB[Fabric Adapters<br/>Entity, Player, Client]
     end
 
     CMD --> DH
@@ -61,11 +57,8 @@ graph LR
 
     EVENTS --> MC
 
-    FAB -.->|"Future Port"| MC
-
     style CMD fill:#e1f5fe
     style EVH fill:#fff3e0
     style DH fill:#e8f5e9
     style CFG fill:#fce4ec
     style MC fill:#f3e5f5
-    style FAB fill:#fff8e1

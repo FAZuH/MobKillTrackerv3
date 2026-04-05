@@ -2,9 +2,8 @@ package com.spiritlight.mobkilltracker.v3.events;
 
 import com.spiritlight.mobkilltracker.v3.core.DataHandler;
 import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
-public class TerminationEvent extends Event {
+public class TerminationEvent {
     private final DataHandler handler;
     private final Type type;
 

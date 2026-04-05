@@ -3,24 +3,24 @@ package com.spiritlight.mobkilltracker.v3;
 import com.spiritlight.mobkilltracker.v3.command.MKTCommand;
 import com.spiritlight.mobkilltracker.v3.command.MKTDebugCommand;
 import com.spiritlight.mobkilltracker.v3.config.Config;
-import com.spiritlight.mobkilltracker.v3.events.ExecutionEvent;
+import com.spiritlight.mobkilltracker.v3.core.DataHandler;
+import com.spiritlight.mobkilltracker.v3.events.EventHandler;
 import com.spiritlight.mobkilltracker.v3.utils.ItemDatabase;
 import com.spiritlight.mobkilltracker.v3.utils.drops.DropManager;
-import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mod(modid = Main.MODID, name = Main.NAME, version = Main.VERSION)
-public class Main {
+public class Main implements ClientModInitializer {
     public static final String MODID = "mktv3";
     public static final String NAME = "MobKillTracker v3";
     public static final String VERSION = "3.0";
 
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static final Config configuration = new Config();
 
     static {
@@ -28,37 +28,52 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(Main::save));
     }
 
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    @Override
+    public void onInitializeClient() {
         try {
             Class.forName("com.spiritlight.mobkilltracker.v3.config.Config");
             configuration.load();
         } catch (Exception e) {
-            LogManager.getLogger(MODID).error("Failed to fetch config: ", e);
+            LOGGER.error("Failed to fetch config: ", e);
         }
 
         try {
             ItemDatabase.instance.fetchItem();
         } catch (Exception e) {
-            LogManager.getLogger(MODID).error("Cannot fetch the API: ", e);
+            LOGGER.error("Cannot fetch the API: ", e);
         }
 
-        ClientCommandHandler.instance.registerCommand(new MKTCommand());
-        ClientCommandHandler.instance.registerCommand(new MKTDebugCommand());
-    }
+        ClientCommandRegistrationCallback.EVENT.register(
+                (dispatcher, registryAccess) -> {
+                    MKTCommand.register(dispatcher);
+                    MKTDebugCommand.register(dispatcher);
+                });
 
-    @EventHandler
-    public void init(FMLInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(
-                new com.spiritlight.mobkilltracker.v3.events.EventHandler());
-    }
+        ClientReceiveMessageEvents.GAME.register(
+                (message, overlay) -> {
+                    EventHandler.onMessageReceived(message.getString());
+                });
 
-    @SubscribeEvent
-    public void execute(ExecutionEvent event) {
-        if (event.shouldExecute(this)) {
-            event.getAction().run();
-        }
+        ClientPlayConnectionEvents.DISCONNECT.register(
+                (handler, client) -> {
+                    EventHandler.onDisconnect();
+                });
+
+        ClientTickEvents.END_CLIENT_TICK.register(
+                client -> {
+                    if (client.world != null) {
+                        if (DataHandler.isInProgress() && DataHandler.getLastHandler() != null) {
+                            client.world
+                                    .getEntities()
+                                    .forEach(
+                                            entity -> {
+                                                DataHandler.getLastHandler()
+                                                        .getHandler()
+                                                        .onEntityUpdate(entity);
+                                            });
+                        }
+                    }
+                });
     }
 
     public static void export() {
@@ -68,7 +83,7 @@ public class Main {
             System.out.println("Drops exported.");
         } catch (Throwable t) {
             t.printStackTrace();
-            if (t instanceof ThreadDeath) throw (ThreadDeath) t;
+            die(t);
             Thread.currentThread()
                     .getUncaughtExceptionHandler()
                     .uncaughtException(Thread.currentThread(), t);
@@ -82,10 +97,17 @@ public class Main {
             System.out.println("Config saved successfully.");
         } catch (Throwable t) {
             t.printStackTrace();
-            if (t instanceof ThreadDeath) throw (ThreadDeath) t;
+            die(t);
             Thread.currentThread()
                     .getUncaughtExceptionHandler()
                     .uncaughtException(Thread.currentThread(), t);
+        }
+    }
+
+    public static void die(Throwable t) {
+        if (t instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(t);
         }
     }
 }

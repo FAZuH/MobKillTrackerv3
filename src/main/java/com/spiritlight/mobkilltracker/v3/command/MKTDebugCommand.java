@@ -1,187 +1,277 @@
 package com.spiritlight.mobkilltracker.v3.command;
 
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.spiritlight.mobkilltracker.v3.Main;
 import com.spiritlight.mobkilltracker.v3.core.DataHandler;
 import com.spiritlight.mobkilltracker.v3.core.EntityEventHandler;
 import com.spiritlight.mobkilltracker.v3.events.TerminationEvent;
 import com.spiritlight.mobkilltracker.v3.utils.ItemDatabase;
 import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
-import java.util.List;
-import java.util.Locale;
-import javax.annotation.ParametersAreNonnullByDefault;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.client.IClientCommand;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.Text;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-public class MKTDebugCommand extends CommandBase implements IClientCommand {
-    @Override
-    public boolean allowUsageWithoutPrefix(ICommandSender sender, String message) {
-        return false;
-    }
+public class MKTDebugCommand {
 
-    @Override
-    public String getName() {
-        return "mktd";
-    }
-
-    @Override
-    public String getUsage(ICommandSender sender) {
-        return "/" + getName();
-    }
-
-    @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-        if (args.length == 0) {
-            Message.error(
-                    "Invalid syntax. /mktd stop|start <duration>|refetch|delay <duration>|log|logvalid|dump|tracklast|exportall"
-                            + "|dumpviewed");
-            return;
-        }
-        switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "stop":
-                MinecraftForge.EVENT_BUS.post(
-                        new TerminationEvent(null, TerminationEvent.Type.COMPLETE));
-                Message.info("OK");
-                return;
-            case "start":
-                int length = args.length == 1 ? 30 : Integer.parseInt(args[1]);
-                DataHandler.newListenedHandler().start(length);
-                Message.info("OK (Not Logged)");
-                return;
-            case "refetch":
-                Message.info("Processing...");
-                ItemDatabase.instance.fetchItem();
-                Message.info("Fetched.");
-                return;
-            case "delay":
-                if (args.length == 1) {
-                    Message.warn("Invalid usage: /mktd delay <duration/ms>");
-                    Message.warn("Default: 100(ms)");
-                    Message.info("Description: Delay before an item is added to scan queue.");
-                    return;
-                }
-                Main.configuration.setDelayMills(Integer.parseInt(args[1]));
-                Message.info("OK=" + args[1] + "ms");
-                return;
-            case "log":
-                Main.configuration.setLogging(!Main.configuration.isLogging());
-                Message.info(String.valueOf(Main.configuration.isLogging()));
-                return;
-            case "logv":
-            case "logvalid":
-                Main.configuration.setLogValid(!Main.configuration.doLogValid());
-                Message.info(String.valueOf(Main.configuration.doLogValid()));
-                return;
-            case "tracklast":
-                Main.configuration.setTrackLast(!Main.configuration.doTrackLast());
-                Message.info(String.valueOf(Main.configuration.doTrackLast()));
-                DataHandler.invalidateLast();
-                return;
-            case "exportall":
-                Main.export();
-                Message.info("OK");
-                return;
-            case "dumpviewed":
-                Message.send(EntityEventHandler.getViewedEntities().toString());
-                Message.info("OK");
-                return;
-            case "save":
-                Main.save();
-                Message.info("OK");
-                return;
-            case "load":
-                try {
-                    Main.configuration.load();
-                } catch (Exception e) {
-                    Message.fatal("Cannot load config: " + e.getMessage());
-                    e.printStackTrace();
-                }
-                Message.info("OK");
-                return;
-            case "dump":
-                List<Entity> loadedEntities = Minecraft.getMinecraft().world.getLoadedEntityList();
-                for (Entity e : loadedEntities) {
-                    try {
-                        ITextComponent itc =
-                                Message.builder("Entity " + e.getName() + ":")
-                                        .build()
-                                        .setStyle(
-                                                new Style()
-                                                        .setHoverEvent(
-                                                                new HoverEvent(
-                                                                        HoverEvent.Action.SHOW_TEXT,
-                                                                        new TextComponentString(
-                                                                                Message.formatJson(
-                                                                                        "Wynncraft Item Name:"
-                                                                                                + e.serializeNBT()
-                                                                                                        .getCompoundTag(
-                                                                                                                "Item")
-                                                                                                        .getCompoundTag(
-                                                                                                                "tag")
-                                                                                                        .getCompoundTag(
-                                                                                                                "display")
-                                                                                                        .getString(
-                                                                                                                "Name")
-                                                                                                + "\n\n"
-                                                                                                + "Item name: "
-                                                                                                + (e
-                                                                                                                .hasCustomName()
-                                                                                                        ? e
-                                                                                                                        .getCustomNameTag()
-                                                                                                                + "("
-                                                                                                                + e
-                                                                                                                        .getName()
-                                                                                                                + ")"
-                                                                                                        : e
-                                                                                                                .getName())
-                                                                                                + "\n"
-                                                                                                + "Item UUID: "
-                                                                                                + e
-                                                                                                        .getUniqueID()
-                                                                                                + "\n\n"
-                                                                                                + e
-                                                                                                        .serializeNBT()
-                                                                                                + "\n\nClick to track!"))))
-                                                        .setClickEvent(
-                                                                new ClickEvent(
-                                                                        ClickEvent.Action
-                                                                                .RUN_COMMAND,
-                                                                        "/compass "
-                                                                                + e.getPosition()
-                                                                                        .getX()
-                                                                                + " "
-                                                                                + e.getPosition()
-                                                                                        .getY()
-                                                                                + " "
-                                                                                + e.getPosition()
-                                                                                        .getZ())));
-                        Message.sendRaw(itc);
-                        System.out.println(e.getName() + "#" + e.serializeNBT());
-                    } catch (Exception ex) {
-                        Message.error("Error whilst dumping entity: " + ex.getMessage());
-                        ex.printStackTrace();
-                    }
-                }
-                return;
-            default:
-                Message.warn("/mktd");
-        }
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
+    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(
+                literal("mktd")
+                        .executes(
+                                context -> {
+                                    Message.error(
+                                            "Invalid syntax. /mktd stop|start <duration>|refetch|delay <duration>|log|logvalid|dump|tracklast|exportall|dumpviewed");
+                                    return 1;
+                                })
+                        .then(
+                                literal("stop")
+                                        .executes(
+                                                context -> {
+                                                    if (DataHandler.getLastHandler()
+                                                            instanceof
+                                                            DataHandler.ListenerHandler) {
+                                                        ((DataHandler.ListenerHandler)
+                                                                        DataHandler
+                                                                                .getLastHandler())
+                                                                .onTermination(
+                                                                        new TerminationEvent(
+                                                                                null,
+                                                                                TerminationEvent
+                                                                                        .Type
+                                                                                        .COMPLETE));
+                                                    }
+                                                    Message.info("OK");
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("start")
+                                        .executes(
+                                                context -> {
+                                                    DataHandler.newListenedHandler().start(30);
+                                                    Message.info("OK (Not Logged)");
+                                                    return 1;
+                                                })
+                                        .then(
+                                                argument("duration", IntegerArgumentType.integer())
+                                                        .executes(
+                                                                context -> {
+                                                                    int length =
+                                                                            IntegerArgumentType
+                                                                                    .getInteger(
+                                                                                            context,
+                                                                                            "duration");
+                                                                    DataHandler.newListenedHandler()
+                                                                            .start(length);
+                                                                    Message.info("OK (Not Logged)");
+                                                                    return 1;
+                                                                })))
+                        .then(
+                                literal("refetch")
+                                        .executes(
+                                                context -> {
+                                                    Message.info("Processing...");
+                                                    ItemDatabase.instance.fetchItem();
+                                                    Message.info("Fetched.");
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("delay")
+                                        .executes(
+                                                context -> {
+                                                    Message.warn(
+                                                            "Invalid usage: /mktd delay <duration/ms>");
+                                                    Message.warn("Default: 100(ms)");
+                                                    Message.info(
+                                                            "Description: Delay before an item is added to scan queue.");
+                                                    return 1;
+                                                })
+                                        .then(
+                                                argument("duration", IntegerArgumentType.integer())
+                                                        .executes(
+                                                                context -> {
+                                                                    int duration =
+                                                                            IntegerArgumentType
+                                                                                    .getInteger(
+                                                                                            context,
+                                                                                            "duration");
+                                                                    Main.configuration
+                                                                            .setDelayMills(
+                                                                                    duration);
+                                                                    Message.info(
+                                                                            "OK=" + duration
+                                                                                    + "ms");
+                                                                    return 1;
+                                                                })))
+                        .then(
+                                literal("log")
+                                        .executes(
+                                                context -> {
+                                                    Main.configuration.setLogging(
+                                                            !Main.configuration.isLogging());
+                                                    Message.info(
+                                                            String.valueOf(
+                                                                    Main.configuration
+                                                                            .isLogging()));
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("logvalid")
+                                        .executes(
+                                                context -> {
+                                                    Main.configuration.setLogValid(
+                                                            !Main.configuration.doLogValid());
+                                                    Message.info(
+                                                            String.valueOf(
+                                                                    Main.configuration
+                                                                            .doLogValid()));
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("logv")
+                                        .executes(
+                                                context -> {
+                                                    Main.configuration.setLogValid(
+                                                            !Main.configuration.doLogValid());
+                                                    Message.info(
+                                                            String.valueOf(
+                                                                    Main.configuration
+                                                                            .doLogValid()));
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("tracklast")
+                                        .executes(
+                                                context -> {
+                                                    Main.configuration.setTrackLast(
+                                                            !Main.configuration.doTrackLast());
+                                                    Message.info(
+                                                            String.valueOf(
+                                                                    Main.configuration
+                                                                            .doTrackLast()));
+                                                    DataHandler.invalidateLast();
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("exportall")
+                                        .executes(
+                                                context -> {
+                                                    Main.export();
+                                                    Message.info("OK");
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("dumpviewed")
+                                        .executes(
+                                                context -> {
+                                                    Message.send(
+                                                            EntityEventHandler.getViewedEntities()
+                                                                    .toString());
+                                                    Message.info("OK");
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("save")
+                                        .executes(
+                                                context -> {
+                                                    Main.save();
+                                                    Message.info("OK");
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("load")
+                                        .executes(
+                                                context -> {
+                                                    try {
+                                                        Main.configuration.load();
+                                                    } catch (Exception e) {
+                                                        Message.fatal(
+                                                                "Cannot load config: "
+                                                                        + e.getMessage());
+                                                        e.printStackTrace();
+                                                    }
+                                                    Message.info("OK");
+                                                    return 1;
+                                                }))
+                        .then(
+                                literal("dump")
+                                        .executes(
+                                                context -> {
+                                                    if (MinecraftClient.getInstance().world == null)
+                                                        return 0;
+                                                    Iterable<Entity> loadedEntities =
+                                                            MinecraftClient.getInstance()
+                                                                    .world
+                                                                    .getEntities();
+                                                    for (Entity e : loadedEntities) {
+                                                        try {
+                                                            Text itc =
+                                                                    Message.builder(
+                                                                                    "Entity "
+                                                                                            + e.getName()
+                                                                                                    .getString()
+                                                                                            + ":")
+                                                                            .addHoverEvent(
+                                                                                    HoverEvent
+                                                                                            .Action
+                                                                                            .SHOW_TEXT,
+                                                                                    Text.literal(
+                                                                                            Message
+                                                                                                    .formatJson(
+                                                                                                            "Wynncraft Item Name:"
+                                                                                                                    + (e
+                                                                                                                                    .hasCustomName()
+                                                                                                                            ? e.getCustomName()
+                                                                                                                                            .getString()
+                                                                                                                                    + "("
+                                                                                                                                    + e.getName()
+                                                                                                                                            .getString()
+                                                                                                                                    + ")"
+                                                                                                                            : e.getName()
+                                                                                                                                    .getString())
+                                                                                                                    + "\n"
+                                                                                                                    + "Item UUID: "
+                                                                                                                    + e
+                                                                                                                            .getUuid()
+                                                                                                                    + "\n\n"
+                                                                                                                    + e
+                                                                                                                            .writeNbt(
+                                                                                                                                    new NbtCompound())
+                                                                                                                    + "\n\nClick to track!")))
+                                                                            .addClickEvent(
+                                                                                    ClickEvent
+                                                                                            .Action
+                                                                                            .RUN_COMMAND,
+                                                                                    "/compass "
+                                                                                            + e.getBlockPos()
+                                                                                                    .getX()
+                                                                                            + " "
+                                                                                            + e.getBlockPos()
+                                                                                                    .getY()
+                                                                                            + " "
+                                                                                            + e.getBlockPos()
+                                                                                                    .getZ())
+                                                                            .build();
+                                                            Message.sendRaw(itc);
+                                                            System.out.println(
+                                                                    e.getName().getString()
+                                                                            + "#"
+                                                                            + e.writeNbt(
+                                                                                    new NbtCompound()));
+                                                        } catch (Exception ex) {
+                                                            Message.error(
+                                                                    "Error whilst dumping entity: "
+                                                                            + ex.getMessage());
+                                                            ex.printStackTrace();
+                                                        }
+                                                    }
+                                                    return 1;
+                                                })));
     }
 }

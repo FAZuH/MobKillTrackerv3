@@ -18,19 +18,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.Text;
 
 public class EntityEventHandler {
     private final DropStatistics stats = new DropStatistics();
@@ -44,8 +40,11 @@ public class EntityEventHandler {
         Message.debugv("Constructing EntityEventHandler");
 
         // Preventing duplications
-        if (Minecraft.getMinecraft().world != null)
-            this.storedEntities.addAll(Minecraft.getMinecraft().world.getLoadedEntityList());
+        if (MinecraftClient.getInstance().world != null) {
+            for (Entity e : MinecraftClient.getInstance().world.getEntities()) {
+                this.storedEntities.add(e);
+            }
+        }
     }
 
     public DropStatistics getStats() {
@@ -60,21 +59,18 @@ public class EntityEventHandler {
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(16);
 
-    @SubscribeEvent
-    public void onEntityUpdate(EntityEvent.EntityConstructing event) {
-        final Entity entity = event.getEntity();
+    public void onEntityUpdate(Entity entity) {
         if (entity == null) return; // EDGE-CASE
         if (storedEntities.contains(entity)) return;
-        if (viewedEntities.contains(entity.getUniqueID())) {
-            Message.debugv(
-                    "Avoiding duplicated UUID " + entity.getUniqueID() + " from being counted.");
+        if (viewedEntities.contains(entity.getUuid())) {
+            Message.debugv("Avoiding duplicated UUID " + entity.getUuid() + " from being counted.");
             return;
         }
         // Processing items in this tab
 
-        Message.debug("Found entity " + entity.getName());
+        Message.debug("Found entity " + entity.getName().getString());
 
-        if (Minecraft.getMinecraft().world == null) return;
+        if (MinecraftClient.getInstance().world == null) return;
 
         if (Main.configuration.getDelayMills() == 0) {
             CompletableFuture.runAsync(() -> this.processEntity(entity));
@@ -86,24 +82,22 @@ public class EntityEventHandler {
         }
     }
 
-    private boolean processToss(EntityItem entity) {
+    private boolean processToss(ItemEntity entity) {
 
         if (Main.configuration.getDelayMills() != 0) return false;
 
-        double entityY = entity.posY;
-        List<EntityPlayer> player = Minecraft.getMinecraft().world.playerEntities;
+        double entityY = entity.getY();
+        List<? extends PlayerEntity> player = MinecraftClient.getInstance().world.getPlayers();
         double[] yAxis =
-                player.stream()
-                        .filter(p -> !(p instanceof FakePlayer))
-                        .filter(p -> !p.isDead)
-                        .mapToDouble(p -> p.posY)
-                        .toArray();
+                player.stream().filter(p -> !p.isDead()).mapToDouble(p -> p.getY()).toArray();
         for (double playerY : yAxis) {
             if (StrictMath.add(playerY, TOSS_MAGIC) == entityY) {
                 Message.debugv(
-                        "Cancelled item " + entity.getName() + " due to dropped item detection");
+                        "Cancelled item "
+                                + entity.getName().getString()
+                                + " due to dropped item detection");
                 storedEntities.add(entity);
-                viewedEntities.add(entity.getUniqueID());
+                viewedEntities.add(entity.getUuid());
                 return true;
             }
         }
@@ -115,27 +109,31 @@ public class EntityEventHandler {
         if (entity == null) return;
         // False if unchanged, implying it already exists, but we already made sure this is not the
         // case?
-        if (!viewedEntities.add(entity.getUniqueID())) {
+        if (!viewedEntities.add(entity.getUuid())) {
             Message.debugv(
                     "Avoiding duplicated UUID "
-                            + entity.getUniqueID()
+                            + entity.getUuid()
                             + " in EntityEventHandler#processEntity(Entity)");
             Message.debugv(
                     "This is a strange behaviour. Please alert the mod developer if this becomes a recurring issue.");
             return;
         }
-        if (entity instanceof EntityItem) {
-            EntityItem entityItem = (EntityItem) entity;
+        if (entity instanceof ItemEntity) {
+            ItemEntity entityItem = (ItemEntity) entity;
             // Ignoring emerald for sake of our life
-            if (Items.EMERALD.equals(entityItem.getItem().getItem())) return;
+            if (entityItem.getStack().isOf(Items.EMERALD)) return;
 
-            String itemName =
-                    entityItem
-                            .serializeNBT()
-                            .getCompoundTag("Item")
-                            .getCompoundTag("tag")
-                            .getCompoundTag("display")
-                            .getString("Name");
+            NbtCompound nbt = entityItem.writeNbt(new NbtCompound());
+            String itemName = "";
+            try {
+                itemName =
+                        nbt.getCompound("Item")
+                                .getCompound("components")
+                                .getCompound("minecraft:custom_name")
+                                .getString("text"); // Fabric 1.21.1 uses components
+            } catch (Exception e) {
+                itemName = entityItem.getStack().getName().getString();
+            }
 
             Type type = ItemDatabase.instance.getItemType(itemName);
 
@@ -143,58 +141,40 @@ public class EntityEventHandler {
 
             // Old schooled way due to involving some huge ass component that I'm too lazy to change
             if (Main.configuration.isLogging() || Main.configuration.doLogValid()) {
-                ITextComponent itc =
-                        Message.builder("Processing item entity " + entity.getName())
-                                .build()
-                                .setStyle(
-                                        new Style()
-                                                .setHoverEvent(
-                                                        new HoverEvent(
-                                                                HoverEvent.Action.SHOW_TEXT,
-                                                                new TextComponentString(
-                                                                        Message.formatJson(
-                                                                                "Wynncraft Item Name:"
-                                                                                        + entity.serializeNBT()
-                                                                                                .getCompoundTag(
-                                                                                                        "Item")
-                                                                                                .getCompoundTag(
-                                                                                                        "tag")
-                                                                                                .getCompoundTag(
-                                                                                                        "display")
-                                                                                                .getString(
-                                                                                                        "Name")
-                                                                                        + "\n\n"
-                                                                                        + "Item name: "
-                                                                                        + (entity
-                                                                                                        .hasCustomName()
-                                                                                                ? entity
-                                                                                                                .getCustomNameTag()
-                                                                                                        + "("
-                                                                                                        + entity
-                                                                                                                .getName()
-                                                                                                        + ")"
-                                                                                                : entity
-                                                                                                        .getName())
-                                                                                        + "\n"
-                                                                                        + "Item UUID: "
-                                                                                        + entity
-                                                                                                .getUniqueID()
-                                                                                        + "\n\n"
-                                                                                        + entity
-                                                                                                .serializeNBT()
-                                                                                        + "\n\nClick to track!"))))
-                                                .setClickEvent(
-                                                        new ClickEvent(
-                                                                ClickEvent.Action.RUN_COMMAND,
-                                                                "/compass "
-                                                                        + entity.getPosition()
-                                                                                .getX()
-                                                                        + " "
-                                                                        + entity.getPosition()
-                                                                                .getY()
-                                                                        + " "
-                                                                        + entity.getPosition()
-                                                                                .getZ())));
+                Text itc =
+                        Message.builder("Processing item entity " + entity.getName().getString())
+                                .addHoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Text.literal(
+                                                Message.formatJson(
+                                                        "Wynncraft Item Name:"
+                                                                + itemName
+                                                                + "\n\n"
+                                                                + "Item name: "
+                                                                + (entity.hasCustomName()
+                                                                        ? entity.getCustomName()
+                                                                                        .getString()
+                                                                                + "("
+                                                                                + entity.getName()
+                                                                                        .getString()
+                                                                                + ")"
+                                                                        : entity.getName()
+                                                                                .getString())
+                                                                + "\n"
+                                                                + "Item UUID: "
+                                                                + entity.getUuid()
+                                                                + "\n\n"
+                                                                + nbt.toString()
+                                                                + "\n\nClick to track!")))
+                                .addClickEvent(
+                                        ClickEvent.Action.RUN_COMMAND,
+                                        "/compass "
+                                                + entity.getBlockPos().getX()
+                                                + " "
+                                                + entity.getBlockPos().getY()
+                                                + " "
+                                                + entity.getBlockPos().getZ())
+                                .build();
                 Message.sendRaw(itc);
             }
             if (processToss(entityItem)) return;
@@ -209,15 +189,25 @@ public class EntityEventHandler {
         } else {
             // Process entities here
             if (KILL_INDICATOR.stream()
-                    .anyMatch(str -> entity.getName().toLowerCase(Locale.ROOT).contains(str))) {
+                    .anyMatch(
+                            str ->
+                                    entity.getName()
+                                            .getString()
+                                            .toLowerCase(Locale.ROOT)
+                                            .contains(str))) {
                 if (Main.configuration.doLogValid()) {
-                    ITextComponent component =
-                            Message.builder(Color.MAGENTA + "Processing kill " + entity.getName())
+                    Text component =
+                            Message.builder(
+                                            Color.MAGENTA
+                                                    + "Processing kill "
+                                                    + entity.getName().getString())
                                     .addHoverEvent(
                                             HoverEvent.Action.SHOW_TEXT,
-                                            Message.of(
+                                            Text.literal(
                                                     Message.formatJson(
-                                                            String.valueOf(entity.serializeNBT()))))
+                                                            String.valueOf(
+                                                                    entity.writeNbt(
+                                                                            new NbtCompound())))))
                                     .build();
                     Message.sendRaw(component);
                 }

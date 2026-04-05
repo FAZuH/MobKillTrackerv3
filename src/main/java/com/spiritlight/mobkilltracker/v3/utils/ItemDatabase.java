@@ -8,7 +8,7 @@ import com.spiritlight.mobkilltracker.v3.enums.Tier;
 import com.spiritlight.mobkilltracker.v3.enums.Type;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemDatabase {
     public static final ItemDatabase instance = new ItemDatabase();
@@ -22,12 +22,12 @@ public class ItemDatabase {
         return Type.UNKNOWN;
     }
 
-    @Nonnull
+    @NotNull
     public Rarity getItemRarity(String item) {
         return itemMap.getOrDefault(item, Rarity.UNKNOWN);
     }
 
-    @Nonnull
+    @NotNull
     public Tier getIngredientTier(String ingredient) {
         return ingredientMap.getOrDefault(ingredient, Tier.UNKNOWN);
     }
