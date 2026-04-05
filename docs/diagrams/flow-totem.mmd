@@ -1,0 +1,48 @@
+---
+config:
+  theme: default
+---
+sequenceDiagram
+    actor MC as Minecraft
+    participant CM as ChatHudMixin
+    participant EH as EventHandler
+    participant DH as DataHandler.ListenerHandler
+    participant EEH as EntityEventHandler
+    participant DM as DropManager
+
+    MC ->> CM: addMessage(Text)
+    CM ->> EH: onMessageReceived(text)
+
+    alt is mob totem placement message
+        EH ->> EH: new TotemEvent()
+        EH ->> DH: newListenedHandler().start(300s)
+        note over DH: inProgress = true<br/>scheduler set for 300s
+
+        loop every client tick
+            MC ->> EEH: onEntityUpdate(entity)
+            alt new ItemEntity (Wynncraft item)
+                EEH ->> EEH: processEntity(entity)
+                EEH ->> EEH: manageRarity / addTier
+                EEH ->> EEH: stats.addKill / addMythic / etc.
+            else kill indicator entity
+                EEH ->> EEH: stats.addKill()
+            end
+        end
+
+        alt timer expires (300s)
+            DH ->> DH: stop() → completion()
+        else disconnect
+            MC ->> EH: onDisconnect()
+            EH ->> DH: onTermination(TERMINATE)
+            DH ->> DH: terminate() → completion()
+        else manual stop (mktd stop)
+            DH ->> DH: onTermination(COMPLETE)
+            DH ->> DH: stop() → completion()
+        end
+
+        DH ->> EH: onCompletion(CompletionEvent)
+        DH ->> DM: insert(DropStatistics)
+        EH ->> MC: Message.info(summary)
+    else not a totem message
+        EH -->> CM: ignore
+    end

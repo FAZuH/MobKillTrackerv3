@@ -1,64 +1,62 @@
 graph LR
-    subgraph "Presentation Layer"
-        CMD[MKTCommand<br/>MKTDebugCommand]
-        MSG[Message]
+    subgraph Entry["Entry Point"]
+        Main["Main<br>(ClientModInitializer)"]
     end
 
-    subgraph "Event Layer"
-        EVH[EventHandler]
-        EEH[EntityEventHandler]
-        EVENTS[Custom Events<br/>TotemEvent<br/>CompletionEvent<br/>TerminationEvent]
+    subgraph Events["Event Layer"]
+        ChatMixin["ChatHudMixin"]
+        EH["EventHandler"]
+        TotemEvent["TotemEvent"]
+        CompletionEvent["CompletionEvent"]
+        TerminationEvent["TerminationEvent"]
     end
 
-    subgraph "Core Layer"
-        DH[DataHandler]
-        DS[DropStatistics]
-        DM[DropManager]
+    subgraph Core["Core / Tracking"]
+        DH["DataHandler"]
+        LH["DataHandler.ListenerHandler"]
+        EEH["EntityEventHandler"]
     end
 
-    subgraph "Data Access Layer"
-        CFG[Config]
-        IDB[ItemDatabase]
-        REQ[Request<br/>HTTP Client]
+    subgraph Storage["Storage"]
+        DM["DropManager"]
+        DS["DropStatistics"]
     end
 
-    subgraph "External Integration"
-        MC[Minecraft/Fabric API]
-        API[Wynncraft API]
+    subgraph Commands["Commands"]
+        MKT["MKTCommand"]
+        MKTD["MKTDebugCommand"]
     end
 
-    subgraph "Utilities"
-        UTILS[Shared Constants<br/>Math Utilities<br/>Collections]
+    subgraph Utils["Utilities"]
+        IDB["ItemDatabase"]
+        Config["Config"]
+        Message["Message"]
     end
 
-    CMD --> DH
-    CMD --> DM
-    CMD --> MSG
+    Main -->|registers| EH
+    Main -->|loads| Config
+    Main -->|fetches| IDB
+    Main -->|registers| MKT
+    Main -->|registers| MKTD
 
-    EVH --> DH
-    EVH --> EVENTS
-    EEH --> DS
-    EEH --> IDB
+    ChatMixin -->|intercepts chat| EH
+    EH -->|creates| TotemEvent
+    TotemEvent -->|triggers| DH
+    EH -->|on disconnect terminates| LH
+    EH -->|handles| CompletionEvent
 
-    DH --> EEH
-    DH --> DM
-    DH --> EVENTS
+    DH -->|owns| EEH
+    DH -->|posts| CompletionEvent
+    DH -.->|extends| LH
+    LH -->|on termination| TerminationEvent
 
-    DS --> DM
+    EEH -->|queries| IDB
+    EEH -->|updates| DS
 
-    IDB --> REQ
-    IDB --> API
+    CompletionEvent -->|triggers insert| DM
+    DM -->|stores| DS
 
-    CFG --> JSON[config.json]
-
-    EEH --> MC
-
-    MSG --> MC
-
-    EVENTS --> MC
-
-    style CMD fill:#e1f5fe
-    style EVH fill:#fff3e0
-    style DH fill:#e8f5e9
-    style CFG fill:#fce4ec
-    style MC fill:#f3e5f5
+    MKT -->|queries| DM
+    MKT -->|outputs| Message
+    MKTD -->|queries| DM
+    MKTD -->|outputs| Message

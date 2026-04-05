@@ -8,6 +8,7 @@ classDiagram
         +String MODID
         +String NAME
         +String VERSION
+        +Logger LOGGER
         +Config configuration
         +onInitializeClient() void
         +export() void
@@ -17,73 +18,108 @@ classDiagram
     class Config {
         +save() void
         +load() void
+        +isModEnabled() boolean
+        +isLogging() boolean
+        +doLogValid() boolean
+        +getDelayMills() int
+    }
+
+    class ChatHudMixin {
+        <<Mixin>>
+        +onAddMessage(Text, CallbackInfo) void
     }
 
     class EventHandler {
         +onDisconnect() void
-        +onTotemPlacement() void
-        +onMessageReceived() void
-        +onCompletion() void
-        +termination() void
+        +onTotemPlacement(TotemEvent) void
+        +onMessageReceived(String) void
+        +onCompletion(CompletionEvent) void
+        +termination(TerminationEvent) void
+        +isMobTotemPlacement(String) boolean
     }
 
     class EntityEventHandler {
-        +onEntityUpdate() void
+        +onEntityUpdate(Entity) void
         +getStats() DropStatistics
     }
 
     class DataHandler {
-        +start() void
+        -EntityEventHandler handler
+        -ScheduledExecutorService scheduler
+        -Consumer completionAction
+        -Supplier terminationAction
+        -boolean isTerminated
+        -boolean isCompleted
+        -static boolean inProgress
+        -static DataHandler lastHandler
+        +start(int) void
         +stop() DropStatistics
         +terminate() void
-        +whenComplete() DataHandler
-        +onTerminate() DataHandler
+        +whenComplete(Consumer) DataHandler
+        +onTerminate(Supplier) DataHandler
         +getStats() DropStatistics
+        +getHandler() EntityEventHandler
         +static newHandler() DataHandler
+        +static newListenedHandler() DataHandler
+        +static isInProgress() boolean
+        +static getLastHandler() DataHandler
+    }
+
+    class DataHandler.ListenerHandler {
+        +onTermination(TerminationEvent) void
     }
 
     class DropStatistics {
         +addKill() void
         +addMythic() void
-        +getQuantity() int
+        +addFabled() void
+        +addLegendary() void
+        +addRare() void
+        +addUnique() void
+        +addNormal() void
+        +addIngredient(int tier) void
+        +getKills() int
+        +getQuantity(int type) int
         +getRarityIndex() double
         +toJson() JsonElement
     }
 
     class DropManager {
         +static DropManager instance
-        +insert() void
-        +get() DropStatistics
-        +remove() void
+        +insert(DropStatistics) void
+        +get(UUID) DropStatistics
+        +remove(UUID) void
         +clear() void
         +getLast() DropStatistics
-        +static exportDrops() void
+        +static exportDrops(UUID) void
         +static exportAllDrops() void
     }
 
     class ItemDatabase {
         +static ItemDatabase instance
-        +getItemType() Type
-        +getItemRarity() Rarity
-        +getIngredientTier() Tier
+        -Map itemMap
+        -Map ingredientMap
         +fetchItem() void
+        +getItemType(String) Type
+        +getItemRarity(String) Rarity
+        +getIngredientTier(String) Tier
     }
 
     class MKTCommand {
-        +register() void
+        +static register(CommandDispatcher) void
     }
 
     class MKTDebugCommand {
-        +register() void
+        +static register(CommandDispatcher) void
     }
 
     class Message {
-        +static info() void
-        +static warn() void
-        +static error() void
-        +static debug() void
-        +static send() void
-        +static builder() MessageBuilder
+        +static info(String) void
+        +static warn(String) void
+        +static error(String) void
+        +static debug(String) void
+        +static debugv(String) void
+        +static builder(String) MessageBuilder
     }
 
     class TotemEvent {
@@ -91,10 +127,12 @@ classDiagram
     }
 
     class CompletionEvent {
+        -DataHandler handler
         +getHandler() DataHandler
     }
 
     class TerminationEvent {
+        -Type type
         +getType() Type
     }
 
@@ -102,32 +140,70 @@ classDiagram
         <<Fabric API>>
     }
 
-    class Request {
-        +static get() String
+    class Rarity {
+        <<enumeration>>
+        MYTHIC
+        FABLED
+        LEGENDARY
+        RARE
+        UNIQUE
+        NORMAL
+        UNKNOWN
+        +fromString(String) Rarity
+    }
+
+    class Tier {
+        <<enumeration>>
+        THREE
+        TWO
+        ONE
+        ZERO
+        UNKNOWN
+    }
+
+    class Type {
+        <<enumeration>>
+        ITEM
+        INGREDIENT
+        UNKNOWN
     }
 
     Main *-- Config : owns
     DataHandler *-- EntityEventHandler : owns
     EntityEventHandler *-- DropStatistics : owns
     DropManager *-- DropStatistics : stores
-
-    EventHandler o-- DataHandler : manages
-
-    DataHandler --|> DataHandler.ListenerHandler : extends
+    DataHandler <-- ListenerHandler : extends
 
     Main ..|> ClientModInitializer : implements
+    Main --> EventHandler : registers tick handler
+    Main --> DataHandler : entity tick processing
+    Main --> ItemDatabase : initializes
+    Main --> MKTCommand : registers
+    Main --> MKTDebugCommand : registers
 
-    Main --> EventHandler : registers
-    EntityEventHandler --> ItemDatabase : queries
+    ChatHudMixin --> EventHandler : forwards messages
+
+    EventHandler --> DataHandler : creates/manages
+    EventHandler --> TotemEvent : posts
+    EventHandler --> CompletionEvent : handles
+    EventHandler --> TerminationEvent : handles
+    EventHandler --> DropManager : completion callback
+    EventHandler --> Message : outputs
+
+    DataHandler --> CompletionEvent : posts
     DataHandler --> DropStatistics : collects
+
+    EntityEventHandler --> ItemDatabase : queries item type
+    EntityEventHandler --> DropStatistics : updates stats
+
     MKTCommand --> DropManager : queries
     MKTCommand --> Message : outputs
     MKTDebugCommand --> DropManager : queries
     MKTDebugCommand --> Message : outputs
-    CompletionEvent --> DataHandler : references
 
-    EventHandler ..> DataHandler : creates
-    EventHandler ..> TotemEvent : posts
-    EventHandler ..> CompletionEvent : handles
-    DataHandler ..> CompletionEvent : posts
-    ItemDatabase ..> Request : HTTP call
+    ItemDatabase --> Rarity : returns
+    ItemDatabase --> Tier : returns
+    ItemDatabase --> Type : returns
+
+    DropStatistics --> Rarity : uses
+    DropStatistics --> Tier : uses
