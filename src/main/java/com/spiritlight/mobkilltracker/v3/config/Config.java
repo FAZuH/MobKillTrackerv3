@@ -121,6 +121,12 @@ public class Config {
     }
 
     public void load() throws IOException {
+        File file = new File(FILE_NAME);
+        if (!file.exists()) {
+            save(); // Create default config if it doesn't exist
+            return;
+        }
+
         JsonParser parser = new JsonParser();
         JsonObject jsonObject =
                 (JsonObject)
