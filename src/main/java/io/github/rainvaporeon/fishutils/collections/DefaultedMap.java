@@ -4,10 +4,11 @@ import java.util.HashMap;
 
 /**
  * A map which defaults to a value if it is absent. It may be null.
+ *
  * @param <K> the key type
  * @param <V> the value type
- * @apiNote This map may return the default value on its get and put operation
- * if no value was previously present.
+ * @apiNote This map may return the default value on its get and put operation if no value was
+ *     previously present.
  */
 public class DefaultedMap<K, V> extends HashMap<K, V> {
     private final V DEFAULT_VALUE;
@@ -29,14 +30,14 @@ public class DefaultedMap<K, V> extends HashMap<K, V> {
     @Override
     public V put(K key, V value) {
         V ret = super.put(key, value);
-        if(ret == null) return DEFAULT_VALUE;
+        if (ret == null) return DEFAULT_VALUE;
         return ret;
     }
 
     @Override
     public V putIfAbsent(K key, V value) {
         V ret = super.putIfAbsent(key, value);
-        if(ret == null) return DEFAULT_VALUE;
+        if (ret == null) return DEFAULT_VALUE;
         return ret;
     }
 }

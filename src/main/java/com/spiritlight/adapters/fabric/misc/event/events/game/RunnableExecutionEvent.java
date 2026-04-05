@@ -22,8 +22,9 @@ public class RunnableExecutionEvent extends Event {
     }
 
     public Runnable getRunnable(long key) {
-        if(this.key != key && this.key != 0L) throw new IllegalArgumentException("cannot accept key " + key);
-        if(taken) throw new IllegalStateException("Execution task already taken");
+        if (this.key != key && this.key != 0L)
+            throw new IllegalArgumentException("cannot accept key " + key);
+        if (taken) throw new IllegalStateException("Execution task already taken");
         synchronized (lock) {
             this.taken = true;
         }

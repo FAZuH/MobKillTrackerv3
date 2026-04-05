@@ -1,7 +1,6 @@
 package io.github.rainvaporeon.fishutils.collections.iterators;
 
 import io.github.rainvaporeon.fishutils.misc.functions.IntToBooleanFunction;
-
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -10,6 +9,7 @@ import java.util.function.IntFunction;
 
 /**
  * A default iterator, provides an easy way to retrieve an iterator.
+ *
  * @param <T>
  */
 public class DefaultIterator<T> implements Iterator<T>, Iterable<T> {
@@ -19,7 +19,10 @@ public class DefaultIterator<T> implements Iterator<T>, Iterable<T> {
     private boolean removed = false;
     private int cursor = 0;
 
-    public DefaultIterator(IntToBooleanFunction hasNextFunction, IntFunction<T> nextFunction, IntConsumer removeFunction) {
+    public DefaultIterator(
+            IntToBooleanFunction hasNextFunction,
+            IntFunction<T> nextFunction,
+            IntConsumer removeFunction) {
         this.hasNextFunction = Objects.requireNonNull(hasNextFunction);
         this.nextFunction = Objects.requireNonNull(nextFunction);
         this.removeFunction = removeFunction;
@@ -42,8 +45,8 @@ public class DefaultIterator<T> implements Iterator<T>, Iterable<T> {
 
     @Override
     public void remove() {
-        if(this.removeFunction == null) throw new UnsupportedOperationException();
-        if(this.removed) throw new IllegalStateException();
+        if (this.removeFunction == null) throw new UnsupportedOperationException();
+        if (this.removed) throw new IllegalStateException();
         this.removed = true;
         this.removeFunction.accept(cursor);
     }

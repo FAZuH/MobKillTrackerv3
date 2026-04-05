@@ -6,40 +6,30 @@ import com.spiritlight.adapters.fabric.misc.event.events.game.ClientPlayJoinEven
 import com.spiritlight.adapters.fabric.misc.event.events.game.ClientTickEndEvent;
 import com.spiritlight.adapters.fabric.misc.event.events.game.RunnableExecutionEvent;
 import com.spiritlight.adapters.fabric.misc.event.events.game.entity.EntityTrackingEvent;
-import org.apache.logging.log4j.LogManager;
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import org.apache.logging.log4j.LogManager;
+import org.jetbrains.annotations.NotNull;
 
 public class EventBusAdapter implements IEventBusSubscriber {
 
     @AdapterMethod
-    public void onEntityTracking(EntityTrackingEvent event) {
-
-    }
+    public void onEntityTracking(EntityTrackingEvent event) {}
 
     @AdapterMethod
-    public void onClientCommandInitialization(ClientCommandInitializationEvent event) {
-
-    }
+    public void onClientCommandInitialization(ClientCommandInitializationEvent event) {}
 
     @AdapterMethod
-    public void onRunnableExecution(RunnableExecutionEvent event) {
-
-    }
+    public void onRunnableExecution(RunnableExecutionEvent event) {}
 
     @AdapterMethod
-    public void onClientTickEnd(ClientTickEndEvent event) {
-
-    }
+    public void onClientTickEnd(ClientTickEndEvent event) {}
 
     @AdapterMethod
-    public void onClientPlayJoin(ClientPlayJoinEvent event) {
-
-    }
+    public void onClientPlayJoin(ClientPlayJoinEvent event) {}
 
     private static final String EVENT_KEY = "Event";
+
     @Override
     public final void onEvent(Event event) {
         String key = event.getClass().getSimpleName();
@@ -53,7 +43,12 @@ public class EventBusAdapter implements IEventBusSubscriber {
         } catch (Exception e) {
             final String reason = getReason(e, key);
 
-            LogManager.getLogger("FishHelper/EventBus").error("Failed to fire event {}: {}", event.getClass().getCanonicalName(), reason, e);
+            LogManager.getLogger("FishHelper/EventBus")
+                    .error(
+                            "Failed to fire event {}: {}",
+                            event.getClass().getCanonicalName(),
+                            reason,
+                            e);
         }
     }
 
@@ -61,7 +56,7 @@ public class EventBusAdapter implements IEventBusSubscriber {
     private static String getReason(Exception e, String key) {
         String reason;
 
-        if(e instanceof StringIndexOutOfBoundsException) {
+        if (e instanceof StringIndexOutOfBoundsException) {
             reason = "invalid class name: for key " + key;
         } else if (e instanceof NoSuchMethodException) {
             reason = "method " + key + " does not exist";

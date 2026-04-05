@@ -1,16 +1,19 @@
 package io.github.rainvaporeon.fishutils.collections;
 
 import io.github.rainvaporeon.fishutils.misc.annotations.DelegatesToShadow;
-
 import java.util.*;
 
 @DelegatesToShadow
 public class IntList implements List<Integer> {
-    @DelegatesToShadow.Target
-    private final List<Integer> back;
+    @DelegatesToShadow.Target private final List<Integer> back;
 
-    public IntList() { this.back = new ArrayList<>(); }
-    public IntList(int capacity) { this.back = new ArrayList<>(capacity); }
+    public IntList() {
+        this.back = new ArrayList<>();
+    }
+
+    public IntList(int capacity) {
+        this.back = new ArrayList<>(capacity);
+    }
 
     @Override
     public int size() {
@@ -44,7 +47,7 @@ public class IntList implements List<Integer> {
 
     public int[] toIntArray() {
         int[] arr = new int[size()];
-        for(int i = 0; i < arr.length; i++) {
+        for (int i = 0; i < arr.length; i++) {
             arr[i] = getAsInt(i);
         }
         return arr;

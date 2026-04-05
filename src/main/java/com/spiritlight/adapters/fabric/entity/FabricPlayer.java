@@ -9,7 +9,9 @@ public interface FabricPlayer extends FabricEntity {
 
     void sendMessage(FabricChatComponent text);
 
-    @Override @NotNull PlayerEntity getRepresentativeEntity();
+    @Override
+    @NotNull
+    PlayerEntity getRepresentativeEntity();
 
     static FabricPlayer from(PlayerEntity entity) {
         return new FabricPlayerImpl(entity);

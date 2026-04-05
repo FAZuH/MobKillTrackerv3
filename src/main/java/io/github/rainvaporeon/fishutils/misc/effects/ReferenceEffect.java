@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 /**
  * A reactive effect.
+ *
  * @param <T>
  */
 public class ReferenceEffect<T> implements Effect<T> {

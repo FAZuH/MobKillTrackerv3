@@ -1,7 +1,6 @@
 package com.spiritlight.adapters.fabric.misc.event.events.bus;
 
 import com.spiritlight.adapters.fabric.misc.event.events.Event;
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,7 +21,7 @@ public class EventBus {
     }
 
     public void fire(Event event) {
-        for(IEventBusSubscriber subscriber : subscribers) {
+        for (IEventBusSubscriber subscriber : subscribers) {
             subscriber.onEvent(event);
         }
     }

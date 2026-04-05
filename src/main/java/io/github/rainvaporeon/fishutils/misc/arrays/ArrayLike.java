@@ -2,23 +2,21 @@ package io.github.rainvaporeon.fishutils.misc.arrays;
 
 import io.github.rainvaporeon.fishutils.misc.annotations.New;
 import io.github.rainvaporeon.fishutils.misc.arrays.primitive.*;
-
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 /**
  * An optionally mutable class representing an array.
+ *
  * @param <T> the array type
  */
 public abstract class ArrayLike<T> implements Cloneable, Iterable<T>, Serializable {
 
     /**
      * The representing array type.
+     *
      * @since 1.2.7
      */
     protected final Class<?> type;
@@ -29,6 +27,7 @@ public abstract class ArrayLike<T> implements Cloneable, Iterable<T>, Serializab
 
     /**
      * Retrieves the element at this index
+     *
      * @param index the index
      * @return the element
      */
@@ -36,49 +35,50 @@ public abstract class ArrayLike<T> implements Cloneable, Iterable<T>, Serializab
 
     /**
      * Sets the index to this element
+     *
      * @param index the index
      * @param value the value
-     * @apiNote This method throws an exception if {@link ArrayLike#isMutable()}
-     * returns {@code false}
+     * @apiNote This method throws an exception if {@link ArrayLike#isMutable()} returns {@code
+     *     false}
      */
     public abstract void set(int index, T value);
 
     /**
      * Retrieves the array size
+     *
      * @return the array size
      */
     public abstract int size();
 
     /**
-     * Checks whether the array is mutable. If not, {@link ArrayLike#set(int, Object)}
-     * will throw an exception.
+     * Checks whether the array is mutable. If not, {@link ArrayLike#set(int, Object)} will throw an
+     * exception.
+     *
      * @return whether this array is mutable
      */
     public abstract boolean isMutable();
 
     /**
-     * Checks the range and throws an {@link IndexOutOfBoundsException} if
-     * {@code value} is less than 0 or larger or equal to {@link ArrayLike#size()}
+     * Checks the range and throws an {@link IndexOutOfBoundsException} if {@code value} is less
+     * than 0 or larger or equal to {@link ArrayLike#size()}
+     *
      * @param value the value
      */
     protected void checkRange(int value) {
-        if(value < 0 || value >= size()) throw new IndexOutOfBoundsException(value);
+        if (value < 0 || value >= size()) throw new IndexOutOfBoundsException(value);
     }
 
     /**
-     * Internal method used to retrieve the array directly.
-     * Implementations of this class may benefit from overriding
-     * this method and return the direct reference to the backing
-     * array, which is usually going to increase speed.
+     * Internal method used to retrieve the array directly. Implementations of this class may
+     * benefit from overriding this method and return the direct reference to the backing array,
+     * which is usually going to increase speed.
+     *
      * @return the backing array
-     * @implNote By default, this method returns null and therefore
-     * is not used.
-     * One has to return the actual backing array
-     * if they do not wish to implement all other misc methods but
-     * also wishes for some extent of speed benefits.
-     * In other words, <b>the default methods may use the array returned
-     * here to do operations!</b> Therefore, it is important that the latest
-     * reference of the backing array should be used.
+     * @implNote By default, this method returns null and therefore is not used. One has to return
+     *     the actual backing array if they do not wish to implement all other misc methods but also
+     *     wishes for some extent of speed benefits. In other words, <b>the default methods may use
+     *     the array returned here to do operations!</b> Therefore, it is important that the latest
+     *     reference of the backing array should be used.
      */
     protected synchronized T[] getInternalArray() {
         return null;
@@ -86,48 +86,48 @@ public abstract class ArrayLike<T> implements Cloneable, Iterable<T>, Serializab
 
     /**
      * Fills this array in a given range to the specified value
+     *
      * @param from the offset to start, inclusive
      * @param to the offset to end, exclusive
      * @param value the value
      */
     public void fill(int from, int to, T value) {
         T[] intern = this.getInternalArray();
-        if(intern != null) {
-            if(!this.isMutable()) throw new UnsupportedOperationException();
+        if (intern != null) {
+            if (!this.isMutable()) throw new UnsupportedOperationException();
             Arrays.fill(intern, from, to, value);
             return;
         }
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             set(i, value);
         }
     }
 
     /**
      * Fills this array in a given range to the specified value
+     *
      * @param from the offset to start, inclusive
      * @param to the offset to end, exclusive
-     * @param mapper the value mapper, the actual position is
-     *               supplied into this mapper
+     * @param mapper the value mapper, the actual position is supplied into this mapper
      */
     public void fill(int from, int to, IntFunction<T> mapper) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             set(i, mapper.apply(i));
         }
     }
 
     /**
      * Converts the representing array into an object array
-     * @return the array, may or may not represent itself and
-     * makes no guarantee that the returned element cannot be mutated
-     * or be reflected onto the array.
-     * @apiNote since this method makes no guarantee that the returned
-     * array is a copy of itself or a reference to its backing array,
-     * nor does it guarantee this is deep-copied, it is highly advised
-     * against modification of the returned array.
+     *
+     * @return the array, may or may not represent itself and makes no guarantee that the returned
+     *     element cannot be mutated or be reflected onto the array.
+     * @apiNote since this method makes no guarantee that the returned array is a copy of itself or
+     *     a reference to its backing array, nor does it guarantee this is deep-copied, it is highly
+     *     advised against modification of the returned array.
      */
     public @New T[] toArray() {
         T[] intern = this.getInternalArray();
-        if(intern != null) {
+        if (intern != null) {
             return intern.clone();
         }
         Object[] ret = new Object[this.size()];
@@ -142,24 +142,22 @@ public abstract class ArrayLike<T> implements Cloneable, Iterable<T>, Serializab
         return new ArrayIterator<>(this);
     }
 
-
     /**
      * Clones this array type.
+     *
      * @return the clone of this array
-     * @apiNote As this class wraps a mutable array, it is
-     * almost always recommended to override this method
-     * so the backing array is also cloned.
-     * By default, the mutation to the array itself will still reflect
-     * onto the origin object!
-     * @implNote if {@link ArrayLike#getInternalArray()} is implemented,
-     * this method may return a new instance of {@link ArrayLike} with
-     * a clone of the array provided.
+     * @apiNote As this class wraps a mutable array, it is almost always recommended to override
+     *     this method so the backing array is also cloned. By default, the mutation to the array
+     *     itself will still reflect onto the origin object!
+     * @implNote if {@link ArrayLike#getInternalArray()} is implemented, this method may return a
+     *     new instance of {@link ArrayLike} with a clone of the array provided.
      */
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public ArrayLike<T> clone() {
         try {
             T[] intern = this.getInternalArray();
-            if(intern != null) {
+            if (intern != null) {
                 return ArrayLike.of(intern.clone());
             }
             return (ArrayLike<T>) super.clone();
@@ -179,19 +177,19 @@ public abstract class ArrayLike<T> implements Cloneable, Iterable<T>, Serializab
 
     /**
      * Checks for object equality between one and another.
+     *
      * @param obj the object
      * @return whether both backing arrays are equal
-     * @implNote it is almost always recommended that the implementation
-     * should implement their own equals method, as this method will
-     * fetch both side's array via the {@link ArrayLike#toArray()} method,
-     * which can be slow at times, thus nearly any implementation will be
-     * beneficial.
+     * @implNote it is almost always recommended that the implementation should implement their own
+     *     equals method, as this method will fetch both side's array via the {@link
+     *     ArrayLike#toArray()} method, which can be slow at times, thus nearly any implementation
+     *     will be beneficial.
      */
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) return false;
-        if(obj instanceof ArrayLike<?> al) {
-            if(this.type != al.type) return false;
+        if (obj == null) return false;
+        if (obj instanceof ArrayLike<?> al) {
+            if (this.type != al.type) return false;
             return Arrays.deepEquals(this.toArray(), al.toArray());
         }
         return false;

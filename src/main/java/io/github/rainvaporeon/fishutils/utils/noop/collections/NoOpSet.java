@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * An empty Set implementation, all mutation
- * calls will be voided.
+ * An empty Set implementation, all mutation calls will be voided.
+ *
  * @param <E>
  * @see NoOpIterator
  */
@@ -36,7 +36,8 @@ public class NoOpSet<E> implements Set<E> {
         return new Object[0];
     }
 
-    @Override @SuppressWarnings("unchecked") /* again, empty array */
+    @Override
+    @SuppressWarnings("unchecked") /* again, empty array */
     public <T> T[] toArray(T[] a) {
         return (T[]) toArray();
     }
@@ -72,7 +73,5 @@ public class NoOpSet<E> implements Set<E> {
     }
 
     @Override
-    public void clear() {
-
-    }
+    public void clear() {}
 }

@@ -1,16 +1,10 @@
 package io.github.rainvaporeon.fishutils.misc.arrays.primitive;
 
-import io.github.rainvaporeon.fishutils.misc.arrays.ArrayLike;
 import io.github.rainvaporeon.fishutils.misc.arrays.PrimitiveArrayLike;
-
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.IntUnaryOperator;
-import java.util.stream.StreamSupport;
 
-/**
- * A class representing an optionally mutable integer array.
- */
+/** A class representing an optionally mutable integer array. */
 public class IntArray extends PrimitiveArrayLike<Integer> {
     private final int[] array;
     private final boolean mutable;
@@ -51,7 +45,7 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
     }
 
     public void setInt(int index, int value) {
-        if(mutable) {
+        if (mutable) {
             checkRange(index);
             array[index] = value;
         } else {
@@ -64,7 +58,7 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
     }
 
     protected void checkRange(int val) {
-        if(val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
+        if (val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
     }
 
     @Override
@@ -73,12 +67,12 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
     }
 
     public IntArray toMutable() {
-        if(this.mutable) return this;
+        if (this.mutable) return this;
         return new IntArray(this.array.clone(), true);
     }
 
     public IntArray toImmutable() {
-        if(!this.mutable) return this;
+        if (!this.mutable) return this;
         return new IntArray(this.array.clone(), false);
     }
 
@@ -92,8 +86,8 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
     }
 
     /*
-        Static collections
-     */
+       Static collections
+    */
 
     public static final IntUnaryOperator NON_NEGATIVE = i -> Math.max(0, i);
 
@@ -111,6 +105,7 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
 
     /**
      * Converts the given int array to an immutable IntArray
+     *
      * @param array the array
      * @return the wrapped IntArray
      */
@@ -120,6 +115,7 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to 0.
+     *
      * @param size the size
      * @return an immutable array filled with zeroes.
      */
@@ -129,9 +125,10 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to {@code value}.
+     *
      * @param size the size
      * @param value the value
-     * @return an immutable array filled with {@code  value}.
+     * @return an immutable array filled with {@code value}.
      */
     public static IntArray create(int size, int value) {
         int[] i = new int[size];
@@ -140,15 +137,16 @@ public class IntArray extends PrimitiveArrayLike<Integer> {
     }
 
     /**
-     * Creates an immutable array with size {@code size} and mapped
-     * individually to its position as described by {@code mapper}
+     * Creates an immutable array with size {@code size} and mapped individually to its position as
+     * described by {@code mapper}
+     *
      * @param size the size
      * @param mapper the mapper
      * @return a new IntArray
      */
     public static IntArray create(int size, IntUnaryOperator mapper) {
         int[] v = new int[size];
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             v[i] = mapper.applyAsInt(i);
         }
         return new IntArray(v);

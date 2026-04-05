@@ -13,7 +13,7 @@ public interface ThrowingRunnable {
         try {
             this.run();
         } catch (Throwable t) {
-            if(mapper != null) {
+            if (mapper != null) {
                 throw mapper.apply(t);
             } else {
                 throw new RuntimeException(t);

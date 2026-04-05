@@ -8,9 +8,7 @@ public class ArrayIterator<T> implements Iterable<T>, Iterator<T> {
     private final T[] array;
     private int cursor;
 
-    /**
-     * Singleton constructor
-     */
+    /** Singleton constructor */
     private ArrayIterator() {
         this.array = (T[]) EMPTY;
         this.cursor = 0;
@@ -23,7 +21,7 @@ public class ArrayIterator<T> implements Iterable<T>, Iterator<T> {
 
     @SuppressWarnings("unchecked") /* Should be fine */
     public static <T> Iterator<T> create(Object array) {
-        if(array == null || !array.getClass().isArray()) {
+        if (array == null || !array.getClass().isArray()) {
             return new SingletonIterator<>((T) array);
         } else {
             return new ArrayIterator<>((T[]) array);
@@ -60,7 +58,7 @@ public class ArrayIterator<T> implements Iterable<T>, Iterator<T> {
 
         @Override
         public E next() {
-            if(!hasNext()) throw new NoSuchElementException();
+            if (!hasNext()) throw new NoSuchElementException();
             iterated = true;
             return this.element;
         }

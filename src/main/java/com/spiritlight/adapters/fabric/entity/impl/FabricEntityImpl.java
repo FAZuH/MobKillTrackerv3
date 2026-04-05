@@ -7,8 +7,6 @@ import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 public class FabricEntityImpl implements FabricEntity {
     private final Entity representingEntity;
 
@@ -31,7 +29,6 @@ public class FabricEntityImpl implements FabricEntity {
         }
         return FabricChatComponent.of(representingEntity.getDisplayName());
     }
-
 
     @Override
     public FabricChatComponent getCustomName() {

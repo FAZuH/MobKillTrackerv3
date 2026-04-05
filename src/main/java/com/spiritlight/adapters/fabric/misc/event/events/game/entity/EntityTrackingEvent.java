@@ -14,5 +14,4 @@ public class EntityTrackingEvent extends Event {
     public FabricEntity getEntity() {
         return entity;
     }
-
 }

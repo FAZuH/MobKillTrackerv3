@@ -1,14 +1,10 @@
 package io.github.rainvaporeon.fishutils.misc.arrays.primitive;
 
 import io.github.rainvaporeon.fishutils.misc.arrays.PrimitiveArrayLike;
-
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.IntFunction;
 
-/**
- * A class representing an optionally mutable short array.
- */
+/** A class representing an optionally mutable short array. */
 public class ShortArray extends PrimitiveArrayLike<Short> {
     private final short[] array;
     private final boolean mutable;
@@ -50,7 +46,7 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
 
     @Override
     public void setShort(int index, short value) {
-        if(mutable) {
+        if (mutable) {
             checkRange(index);
             array[index] = value;
         } else {
@@ -63,7 +59,7 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
     }
 
     protected void checkRange(int val) {
-        if(val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
+        if (val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
     }
 
     @Override
@@ -72,12 +68,12 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
     }
 
     public ShortArray toMutable() {
-        if(this.mutable) return this;
+        if (this.mutable) return this;
         return new ShortArray(this.array.clone(), true);
     }
 
     public ShortArray toImmutable() {
-        if(!this.mutable) return this;
+        if (!this.mutable) return this;
         return new ShortArray(this.array.clone(), false);
     }
 
@@ -88,6 +84,7 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
 
     /**
      * Converts the given short array to an immutable ShortArray
+     *
      * @param array the array
      * @return the wrapped ShortArray
      */
@@ -97,6 +94,7 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to 0.
+     *
      * @param size the size
      * @return an immutable array filled with zeroes.
      */
@@ -106,6 +104,7 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to {@code value}.
+     *
      * @param size the size
      * @param value the value
      * @return an immutable array filled with {@code value}.
@@ -117,15 +116,16 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
     }
 
     /**
-     * Creates an immutable array with size {@code size} and mapped
-     * individually to its position as described by {@code mapper}
+     * Creates an immutable array with size {@code size} and mapped individually to its position as
+     * described by {@code mapper}
+     *
      * @param size the size
      * @param mapper the mapper
      * @return a new ShortArray
      */
     public static ShortArray create(int size, IntFunction<Short> mapper) {
         short[] v = new short[size];
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             v[i] = mapper.apply(i);
         }
         return new ShortArray(v);
@@ -155,7 +155,7 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
 
         private DefaultShortArray(int size, short value) {
             super(null, false);
-            if(size < 0) throw new IllegalArgumentException("size cannot be negative");
+            if (size < 0) throw new IllegalArgumentException("size cannot be negative");
             this.size = size;
             this.value = value;
         }
@@ -174,7 +174,7 @@ public class ShortArray extends PrimitiveArrayLike<Short> {
 
         @Override
         protected void checkRange(int val) {
-            if(val < 0 || val >= size) throw new IndexOutOfBoundsException(val);
+            if (val < 0 || val >= size) throw new IndexOutOfBoundsException(val);
         }
     }
 }

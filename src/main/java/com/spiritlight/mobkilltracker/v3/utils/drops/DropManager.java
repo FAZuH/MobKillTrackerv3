@@ -2,15 +2,14 @@ package com.spiritlight.mobkilltracker.v3.utils.drops;
 
 import com.google.gson.JsonArray;
 import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class DropManager {
     // We use LinkedList implementation here for ease of accessing last element
@@ -54,7 +53,7 @@ public class DropManager {
 
     @Nullable
     public DropStatistics getLast() {
-        if(sessionData.isEmpty()) return null;
+        if (sessionData.isEmpty()) return null;
         return sessionData.getLast();
     }
 
@@ -63,20 +62,21 @@ public class DropManager {
         stats.removeIf(Objects::isNull);
         name = name.contains(".json") ? name : name + ".json";
         File file = new File(name);
-        if(file.exists()) {
+        if (file.exists()) {
             Message.error("This name already exists, please choose another name!");
             return;
         }
         File folder = new File("mkt_out/");
-        if(!folder.exists()) folder.mkdirs();
+        if (!folder.exists()) folder.mkdirs();
 
-        try(FileWriter writer = new FileWriter("mkt_out/" +name)) {
+        try (FileWriter writer = new FileWriter("mkt_out/" + name)) {
             JsonArray array = new JsonArray();
-            for(DropStatistics stat : stats) {
+            for (DropStatistics stat : stats) {
                 array.add(stat.toJson());
             }
             writer.write(array.toString());
-            Message.info("Exported data! You can find them in your minecraft folder, under the mkt_out folder.");
+            Message.info(
+                    "Exported data! You can find them in your minecraft folder, under the mkt_out folder.");
         } catch (IOException e) {
             Message.error("An error has occurred: Check the logs for details.");
             e.printStackTrace();
@@ -84,7 +84,7 @@ public class DropManager {
     }
 
     public static void exportAllDrops() {
-        if(DropManager.instance.sessionData.isEmpty()) {
+        if (DropManager.instance.sessionData.isEmpty()) {
             System.out.println("No drops available to save, aborting!");
             return;
         }
@@ -93,7 +93,7 @@ public class DropManager {
             String name = sdf.format(new Date());
             String fileName = name;
             int i = 1;
-            while(new File(fileName + ".json").exists()) {
+            while (new File(fileName + ".json").exists()) {
                 fileName = name + i++;
             }
             exportDrops(fileName, DropManager.instance.sessionData);
@@ -103,30 +103,67 @@ public class DropManager {
     }
 
     private static final DecimalFormat df = new DecimalFormat("0.00");
+
     public static String dropToString(@Nullable DropStatistics drops) {
-        if(drops == null) return "";
+        if (drops == null) return "";
         int totalDrops = drops.getQuantity(DropStatistics.ALL);
         int itemDrops = drops.getQuantity(DropStatistics.ITEM);
         int ingDrops = drops.getQuantity(DropStatistics.INGREDIENT);
         int kills = drops.getKills();
         double ingRate = (ingDrops == 0 ? 0 : (double) kills / ingDrops);
         double itemRate = (itemDrops == 0 ? 0 : (double) kills / itemDrops);
-        return                         "§rTotal Mobs Killed: §c" + kills + "\n" +
-                "§rTotal Items Dropped: §a" + totalDrops + "\n" +
-                "\n" +
-                "§6§l Item Summary: \n" +
-                "§rIngredient Drops: §b[✫✫✫] §rx" + drops.getIngredient3() + " §d[✫✫§8✫§d] §rx" + drops.getIngredient2() + " §e[✫§8✫✫§e] §rx" + drops.getIngredient1() + " §7[§8✫✫✫§7] §rx" + drops.getIngredient0() + "\n" +
-                "§5§lMythic §rDrops: " + drops.getMythic() + "\n" +
-                "§cFabled §rDrops: " + drops.getFabled() + "\n" +
-                "§bLegendary §rDrops: " + drops.getLegendary() + "\n" +
-                "§dRare §rDrops: " + drops.getRare() + "\n" +
-                "§aSet §rDrops: " + drops.getSet() + "\n" +
-                "§eUnique §rDrops: " + drops.getUnique() + "\n" +
-                "§rNormal §rDrops: " + drops.getNormal() + "\n" +
-                "Total drops: Item " + itemDrops + ", Ingredients " + ingDrops +
-                "\n §c§lAdvanced details:\n" +
-                "§rItem Rate: " + df.format(itemRate) + " §7(Mobs/item)" + "\n" +
-                "§rIngredient Rate: " + df.format(ingRate) + " §7(Mobs/Ingredient)" + "\n" +
-                "§rRarity Index: " + drops.getRarityIndex();
+        return "§rTotal Mobs Killed: §c"
+                + kills
+                + "\n"
+                + "§rTotal Items Dropped: §a"
+                + totalDrops
+                + "\n"
+                + "\n"
+                + "§6§l Item Summary: \n"
+                + "§rIngredient Drops: §b[✫✫✫] §rx"
+                + drops.getIngredient3()
+                + " §d[✫✫§8✫§d] §rx"
+                + drops.getIngredient2()
+                + " §e[✫§8✫✫§e] §rx"
+                + drops.getIngredient1()
+                + " §7[§8✫✫✫§7] §rx"
+                + drops.getIngredient0()
+                + "\n"
+                + "§5§lMythic §rDrops: "
+                + drops.getMythic()
+                + "\n"
+                + "§cFabled §rDrops: "
+                + drops.getFabled()
+                + "\n"
+                + "§bLegendary §rDrops: "
+                + drops.getLegendary()
+                + "\n"
+                + "§dRare §rDrops: "
+                + drops.getRare()
+                + "\n"
+                + "§aSet §rDrops: "
+                + drops.getSet()
+                + "\n"
+                + "§eUnique §rDrops: "
+                + drops.getUnique()
+                + "\n"
+                + "§rNormal §rDrops: "
+                + drops.getNormal()
+                + "\n"
+                + "Total drops: Item "
+                + itemDrops
+                + ", Ingredients "
+                + ingDrops
+                + "\n §c§lAdvanced details:\n"
+                + "§rItem Rate: "
+                + df.format(itemRate)
+                + " §7(Mobs/item)"
+                + "\n"
+                + "§rIngredient Rate: "
+                + df.format(ingRate)
+                + " §7(Mobs/Ingredient)"
+                + "\n"
+                + "§rRarity Index: "
+                + drops.getRarityIndex();
     }
 }

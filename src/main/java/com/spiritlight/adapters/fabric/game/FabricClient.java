@@ -4,10 +4,9 @@ import com.spiritlight.adapters.fabric.AdaptableEntity;
 import com.spiritlight.adapters.fabric.entity.FabricEntity;
 import com.spiritlight.adapters.fabric.entity.FabricPlayer;
 import com.spiritlight.adapters.fabric.game.impl.FabricClientImpl;
-import net.minecraft.client.MinecraftClient;
-
 import java.util.List;
 import java.util.function.Predicate;
+import net.minecraft.client.MinecraftClient;
 
 public interface FabricClient extends AdaptableEntity<MinecraftClient> {
 

@@ -2,19 +2,18 @@ package com.spiritlight.mobkilltracker.v3.config;
 
 /**
  * Declares a config object.
- * <p>
- *     A config object by contract should be able to be
- *     serialized into a {@link String}, and deserialized
- *     back to an object. The deserialized object should
- *     maintain meaningful equality with the object that
- *     generated the serializing string.
- * </p>
+ *
+ * <p>A config object by contract should be able to be serialized into a {@link String}, and
+ * deserialized back to an object. The deserialized object should maintain meaningful equality with
+ * the object that generated the serializing string.
+ *
  * @param <T> The type of object to return
  */
 public interface ConfigObject<T> {
 
     /**
      * Deserializes using this given String.
+     *
      * @param in The input string
      * @return The deserialized object
      */
@@ -22,6 +21,7 @@ public interface ConfigObject<T> {
 
     /**
      * Serialize the object into a String object.
+     *
      * @return The String object representing this object.
      */
     String serialize();

@@ -3,8 +3,8 @@ package com.spiritlight.mobkilltracker.v3.events;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
- * Utility event type to allow the main thread to be executing certain
- * instructions rather than on a parallel thread.
+ * Utility event type to allow the main thread to be executing certain instructions rather than on a
+ * parallel thread.
  */
 public class ExecutionEvent extends Event {
     private final Runnable action;
@@ -31,12 +31,13 @@ public class ExecutionEvent extends Event {
 
     /**
      * Whether this object is supposed to execute this action
+     *
      * @param invoker The calling object
      * @return Whether execution is for this object or not
      */
     public boolean shouldExecute(Object invoker) {
-        if(this.target == invoker) return true;
-        if(this.targetClass == invoker.getClass()) return true;
+        if (this.target == invoker) return true;
+        if (this.targetClass == invoker.getClass()) return true;
         return target == null && targetClass == null;
     }
 

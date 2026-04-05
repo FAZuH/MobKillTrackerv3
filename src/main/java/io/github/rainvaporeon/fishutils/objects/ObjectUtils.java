@@ -1,21 +1,18 @@
 package io.github.rainvaporeon.fishutils.objects;
 
-import io.github.rainvaporeon.fishutils.action.ActionResult;
-import io.github.rainvaporeon.fishutils.action.Result;
 import io.github.rainvaporeon.fishutils.collections.Pair;
-
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ObjectUtils {
 
     public static <T, R> R evaluateOrDefault(T object, R defaultValue, Function<T, R> mapper) {
-        if(object == null) return defaultValue;
+        if (object == null) return defaultValue;
         return mapper.apply(object);
     }
 
     public static boolean assertOrElse(Supplier<Boolean> test, Runnable otherwise) {
-        if(test.get()) {
+        if (test.get()) {
             return true;
         } else {
             otherwise.run();
@@ -34,9 +31,10 @@ public class ObjectUtils {
 
     /**
      * Evaluates the time taken to run this function
+     *
      * @param function The supplier to run
-     * @return A Pair with the key being the returned value, and value being the
-     * time elapsed executing this function
+     * @return A Pair with the key being the returned value, and value being the time elapsed
+     *     executing this function
      * @param <R> return type
      */
     public static <R> Pair<R, Long> evaluate(Supplier<R> function) {
@@ -48,9 +46,10 @@ public class ObjectUtils {
 
     /**
      * Evaluates the time taken to run this function
+     *
      * @param function The supplier to run
-     * @return A Pair with the key being the returned value, and value being the
-     * time elapsed executing this function
+     * @return A Pair with the key being the returned value, and value being the time elapsed
+     *     executing this function
      * @param <R> return type
      */
     public static <R> Pair<R, Long> evaluateNanos(Supplier<R> function) {

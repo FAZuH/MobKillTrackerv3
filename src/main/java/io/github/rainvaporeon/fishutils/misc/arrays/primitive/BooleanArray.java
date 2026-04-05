@@ -1,14 +1,10 @@
 package io.github.rainvaporeon.fishutils.misc.arrays.primitive;
 
 import io.github.rainvaporeon.fishutils.misc.arrays.PrimitiveArrayLike;
-
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.IntFunction;
 
-/**
- * A class representing an optionally mutable boolean array.
- */
+/** A class representing an optionally mutable boolean array. */
 public class BooleanArray extends PrimitiveArrayLike<Boolean> {
     private final boolean[] array;
     private final boolean mutable;
@@ -50,7 +46,7 @@ public class BooleanArray extends PrimitiveArrayLike<Boolean> {
 
     @Override
     public void setBoolean(int index, boolean value) {
-        if(mutable) {
+        if (mutable) {
             checkRange(index);
             array[index] = value;
         } else {
@@ -63,7 +59,7 @@ public class BooleanArray extends PrimitiveArrayLike<Boolean> {
     }
 
     protected void checkRange(int val) {
-        if(val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
+        if (val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
     }
 
     @Override
@@ -72,12 +68,12 @@ public class BooleanArray extends PrimitiveArrayLike<Boolean> {
     }
 
     public BooleanArray toMutable() {
-        if(this.mutable) return this;
+        if (this.mutable) return this;
         return new BooleanArray(this.array.clone(), true);
     }
 
     public BooleanArray toImmutable() {
-        if(!this.mutable) return this;
+        if (!this.mutable) return this;
         return new BooleanArray(this.array.clone(), false);
     }
 
@@ -87,11 +83,12 @@ public class BooleanArray extends PrimitiveArrayLike<Boolean> {
     }
 
     /*
-        Static collections
-     */
+       Static collections
+    */
 
     /**
      * Converts the given int array to an immutable BooleanArray
+     *
      * @param array the array
      * @return the wrapped BooleanArray
      */
@@ -101,6 +98,7 @@ public class BooleanArray extends PrimitiveArrayLike<Boolean> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to 0.
+     *
      * @param size the size
      * @return an immutable array filled with zeroes.
      */
@@ -110,6 +108,7 @@ public class BooleanArray extends PrimitiveArrayLike<Boolean> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to {@code value}.
+     *
      * @param size the size
      * @param value the value
      * @return an immutable array filled with {@code value}.
@@ -121,15 +120,16 @@ public class BooleanArray extends PrimitiveArrayLike<Boolean> {
     }
 
     /**
-     * Creates an immutable array with size {@code size} and mapped
-     * individually to its position as described by {@code mapper}
+     * Creates an immutable array with size {@code size} and mapped individually to its position as
+     * described by {@code mapper}
+     *
      * @param size the size
      * @param mapper the mapper
      * @return a new BooleanArray
      */
     public static BooleanArray create(int size, IntFunction<Boolean> mapper) {
         boolean[] v = new boolean[size];
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             v[i] = mapper.apply(i);
         }
         return new BooleanArray(v);

@@ -41,14 +41,10 @@ public class NoOpMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-
-    }
+    public void putAll(Map<? extends K, ? extends V> m) {}
 
     @Override
-    public void clear() {
-
-    }
+    public void clear() {}
 
     @Override
     public Set<K> keySet() {

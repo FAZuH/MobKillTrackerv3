@@ -2,22 +2,26 @@ buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
         mavenCentral()
+        maven { url = 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.+'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:6.25.0'
     }
 }
-        
+
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'checkstyle'
+apply plugin: 'com.diffplug.spotless'
 
 version = '1.1'
 group = 'com.spiritlight.mobkilltracker.v3' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'MKTv3'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '17'
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -52,6 +56,12 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
         }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -116,5 +126,19 @@ publishing {
         maven {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
+    }
+}
+
+checkstyle {
+    toolVersion = '9.3'
+    configFile = file('config/checkstyle/checkstyle.xml')
+}
+
+spotless {
+    java {
+        googleJavaFormat('1.17.0').aosp()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }

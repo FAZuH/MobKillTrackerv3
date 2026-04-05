@@ -4,7 +4,5 @@ import java.io.OutputStream;
 
 public final class NoOpOutputStream extends OutputStream {
     @Override
-    public void write(int b) {
-
-    }
+    public void write(int b) {}
 }

@@ -14,13 +14,14 @@ public final class LogInternals {
 
     /**
      * Retrieves the shared {@link File} instance for synchronizing
+     *
      * @param file the file
      * @return the file, if one is present.
      */
     static File getSharedObjectIfPresent(File file) {
         synchronized (accessor) {
             int index = sharedFileNames.indexOf(file);
-            if(index >= 0) return sharedFileNames.get(index);
+            if (index >= 0) return sharedFileNames.get(index);
             return file;
         }
     }
@@ -28,7 +29,7 @@ public final class LogInternals {
     // adds this entry if absent
     static void appendFileIfAbsent(File file) {
         synchronized (accessor) {
-            if(sharedFileNames.contains(file)) return;
+            if (sharedFileNames.contains(file)) return;
             sharedFileNames.add(file);
         }
     }

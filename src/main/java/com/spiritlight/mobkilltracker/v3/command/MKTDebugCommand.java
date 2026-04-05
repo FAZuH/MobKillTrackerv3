@@ -6,6 +6,9 @@ import com.spiritlight.mobkilltracker.v3.core.EntityEventHandler;
 import com.spiritlight.mobkilltracker.v3.events.TerminationEvent;
 import com.spiritlight.mobkilltracker.v3.utils.ItemDatabase;
 import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
+import java.util.List;
+import java.util.Locale;
+import javax.annotation.ParametersAreNonnullByDefault;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -20,11 +23,8 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.client.IClientCommand;
 import net.minecraftforge.common.MinecraftForge;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
-import java.util.Locale;
-
-@ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class MKTDebugCommand extends CommandBase implements IClientCommand {
     @Override
     public boolean allowUsageWithoutPrefix(ICommandSender sender, String message) {
@@ -43,14 +43,16 @@ public class MKTDebugCommand extends CommandBase implements IClientCommand {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-        if(args.length == 0) {
-            Message.error("Invalid syntax. /mktd stop|start <duration>|refetch|delay <duration>|log|logvalid|dump|tracklast|exportall" +
-                    "|dumpviewed");
+        if (args.length == 0) {
+            Message.error(
+                    "Invalid syntax. /mktd stop|start <duration>|refetch|delay <duration>|log|logvalid|dump|tracklast|exportall"
+                            + "|dumpviewed");
             return;
         }
-        switch(args[0].toLowerCase(Locale.ROOT)) {
+        switch (args[0].toLowerCase(Locale.ROOT)) {
             case "stop":
-                MinecraftForge.EVENT_BUS.post(new TerminationEvent(null, TerminationEvent.Type.COMPLETE));
+                MinecraftForge.EVENT_BUS.post(
+                        new TerminationEvent(null, TerminationEvent.Type.COMPLETE));
                 Message.info("OK");
                 return;
             case "start":
@@ -64,7 +66,7 @@ public class MKTDebugCommand extends CommandBase implements IClientCommand {
                 Message.info("Fetched.");
                 return;
             case "delay":
-                if(args.length == 1) {
+                if (args.length == 1) {
                     Message.warn("Invalid usage: /mktd delay <duration/ms>");
                     Message.warn("Default: 100(ms)");
                     Message.info("Description: Delay before an item is added to scan queue.");
@@ -110,13 +112,61 @@ public class MKTDebugCommand extends CommandBase implements IClientCommand {
                 return;
             case "dump":
                 List<Entity> loadedEntities = Minecraft.getMinecraft().world.getLoadedEntityList();
-                for(Entity e : loadedEntities) {
+                for (Entity e : loadedEntities) {
                     try {
-                        ITextComponent itc = Message.builder("Entity " + e.getName() + ":").build()
-                                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                                new TextComponentString(Message.formatJson("Wynncraft Item Name:" + e.serializeNBT().getCompoundTag("Item").getCompoundTag("tag").getCompoundTag("display").getString("Name") + "\n\n" + "Item name: " + (e.hasCustomName() ? e.getCustomNameTag() + "(" + e.getName() + ")" : e.getName()) + "\n" + "Item UUID: " + e.getUniqueID() + "\n\n" + e.serializeNBT() + "\n\nClick to track!")))
-                                        ).setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/compass " +
-                                                e.getPosition().getX() + " " + e.getPosition().getY() + " " + e.getPosition().getZ())));
+                        ITextComponent itc =
+                                Message.builder("Entity " + e.getName() + ":")
+                                        .build()
+                                        .setStyle(
+                                                new Style()
+                                                        .setHoverEvent(
+                                                                new HoverEvent(
+                                                                        HoverEvent.Action.SHOW_TEXT,
+                                                                        new TextComponentString(
+                                                                                Message.formatJson(
+                                                                                        "Wynncraft Item Name:"
+                                                                                                + e.serializeNBT()
+                                                                                                        .getCompoundTag(
+                                                                                                                "Item")
+                                                                                                        .getCompoundTag(
+                                                                                                                "tag")
+                                                                                                        .getCompoundTag(
+                                                                                                                "display")
+                                                                                                        .getString(
+                                                                                                                "Name")
+                                                                                                + "\n\n"
+                                                                                                + "Item name: "
+                                                                                                + (e
+                                                                                                                .hasCustomName()
+                                                                                                        ? e
+                                                                                                                        .getCustomNameTag()
+                                                                                                                + "("
+                                                                                                                + e
+                                                                                                                        .getName()
+                                                                                                                + ")"
+                                                                                                        : e
+                                                                                                                .getName())
+                                                                                                + "\n"
+                                                                                                + "Item UUID: "
+                                                                                                + e
+                                                                                                        .getUniqueID()
+                                                                                                + "\n\n"
+                                                                                                + e
+                                                                                                        .serializeNBT()
+                                                                                                + "\n\nClick to track!"))))
+                                                        .setClickEvent(
+                                                                new ClickEvent(
+                                                                        ClickEvent.Action
+                                                                                .RUN_COMMAND,
+                                                                        "/compass "
+                                                                                + e.getPosition()
+                                                                                        .getX()
+                                                                                + " "
+                                                                                + e.getPosition()
+                                                                                        .getY()
+                                                                                + " "
+                                                                                + e.getPosition()
+                                                                                        .getZ())));
                         Message.sendRaw(itc);
                         System.out.println(e.getName() + "#" + e.serializeNBT());
                     } catch (Exception ex) {

@@ -8,10 +8,21 @@ public class NoOpPrintStream extends PrintStream {
         super(OutputStream.nullOutputStream());
     }
 
-    @Override public void write(int b) {}
-    @Override public void write(byte[] buf) {}
-    @Override public void write(byte[] buf, int off, int len) {}
-    @Override public void writeBytes(byte[] buf) {}
-    @Override public void flush() {}
-    @Override public void close() {}
+    @Override
+    public void write(int b) {}
+
+    @Override
+    public void write(byte[] buf) {}
+
+    @Override
+    public void write(byte[] buf, int off, int len) {}
+
+    @Override
+    public void writeBytes(byte[] buf) {}
+
+    @Override
+    public void flush() {}
+
+    @Override
+    public void close() {}
 }

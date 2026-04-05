@@ -9,7 +9,8 @@ public class TerminationEvent extends Event {
     private final Type type;
 
     public TerminationEvent(DataHandler terminate, Type type) {
-        Message.debugv("Constructing TerminationEvent for DataHandler " + terminate + " and type " + type);
+        Message.debugv(
+                "Constructing TerminationEvent for DataHandler " + terminate + " and type " + type);
         this.handler = terminate;
         this.type = type;
     }

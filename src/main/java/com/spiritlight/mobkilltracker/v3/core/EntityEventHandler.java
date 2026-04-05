@@ -1,18 +1,23 @@
 package com.spiritlight.mobkilltracker.v3.core;
 
+import static com.spiritlight.mobkilltracker.v3.utils.SharedConstants.TOSS_MAGIC;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.spiritlight.mobkilltracker.v3.Main;
 import com.spiritlight.mobkilltracker.v3.enums.Color;
 import com.spiritlight.mobkilltracker.v3.enums.Rarity;
-import com.spiritlight.mobkilltracker.v3.enums.Tier;
 import com.spiritlight.mobkilltracker.v3.enums.Type;
 import com.spiritlight.mobkilltracker.v3.utils.ItemDatabase;
-import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
-import com.spiritlight.mobkilltracker.v3.utils.minecraft.NBTType;
 import com.spiritlight.mobkilltracker.v3.utils.collections.ConcurrentTimedSet;
 import com.spiritlight.mobkilltracker.v3.utils.drops.DropStatistics;
 import com.spiritlight.mobkilltracker.v3.utils.math.StrictMath;
+import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -27,18 +32,11 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static com.spiritlight.mobkilltracker.v3.utils.SharedConstants.TOSS_MAGIC;
-
 public class EntityEventHandler {
     private final DropStatistics stats = new DropStatistics();
 
-    private static final List<String> KILL_INDICATOR = ImmutableList.of("combat xp", "guild xp", "shared");
+    private static final List<String> KILL_INDICATOR =
+            ImmutableList.of("combat xp", "guild xp", "shared");
 
     private static final Set<UUID> viewedEntities = new ConcurrentTimedSet<>(300, TimeUnit.SECONDS);
 
@@ -61,13 +59,15 @@ public class EntityEventHandler {
     }
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(16);
+
     @SubscribeEvent
     public void onEntityUpdate(EntityEvent.EntityConstructing event) {
         final Entity entity = event.getEntity();
         if (entity == null) return; // EDGE-CASE
         if (storedEntities.contains(entity)) return;
         if (viewedEntities.contains(entity.getUniqueID())) {
-            Message.debugv("Avoiding duplicated UUID " + entity.getUniqueID() + " from being counted.");
+            Message.debugv(
+                    "Avoiding duplicated UUID " + entity.getUniqueID() + " from being counted.");
             return;
         }
         // Processing items in this tab
@@ -76,25 +76,32 @@ public class EntityEventHandler {
 
         if (Minecraft.getMinecraft().world == null) return;
 
-        if(Main.configuration.getDelayMills() == 0) {
+        if (Main.configuration.getDelayMills() == 0) {
             CompletableFuture.runAsync(() -> this.processEntity(entity));
         } else {
-            executor.schedule(() -> processEntity(entity), Main.configuration.getDelayMills(), TimeUnit.MILLISECONDS);
+            executor.schedule(
+                    () -> processEntity(entity),
+                    Main.configuration.getDelayMills(),
+                    TimeUnit.MILLISECONDS);
         }
     }
 
     private boolean processToss(EntityItem entity) {
 
-        if(Main.configuration.getDelayMills() != 0) return false;
+        if (Main.configuration.getDelayMills() != 0) return false;
 
         double entityY = entity.posY;
         List<EntityPlayer> player = Minecraft.getMinecraft().world.playerEntities;
-        double[] yAxis = player.stream()
-                .filter(p -> !(p instanceof FakePlayer))
-                .filter(p -> !p.isDead).mapToDouble(p -> p.posY).toArray();
-        for(double playerY : yAxis) {
-            if(StrictMath.add(playerY, TOSS_MAGIC) == entityY) {
-                Message.debugv("Cancelled item " + entity.getName() + " due to dropped item detection");
+        double[] yAxis =
+                player.stream()
+                        .filter(p -> !(p instanceof FakePlayer))
+                        .filter(p -> !p.isDead)
+                        .mapToDouble(p -> p.posY)
+                        .toArray();
+        for (double playerY : yAxis) {
+            if (StrictMath.add(playerY, TOSS_MAGIC) == entityY) {
+                Message.debugv(
+                        "Cancelled item " + entity.getName() + " due to dropped item detection");
                 storedEntities.add(entity);
                 viewedEntities.add(entity.getUniqueID());
                 return true;
@@ -105,46 +112,113 @@ public class EntityEventHandler {
 
     private void processEntity(Entity entity) {
         storedEntities.add(entity);
-        if(entity == null) return;
-        // False if unchanged, implying it already exists, but we already made sure this is not the case?
-        if(!viewedEntities.add(entity.getUniqueID())) {
-            Message.debugv("Avoiding duplicated UUID " + entity.getUniqueID() + " in EntityEventHandler#processEntity(Entity)");
-            Message.debugv("This is a strange behaviour. Please alert the mod developer if this becomes a recurring issue.");
+        if (entity == null) return;
+        // False if unchanged, implying it already exists, but we already made sure this is not the
+        // case?
+        if (!viewedEntities.add(entity.getUniqueID())) {
+            Message.debugv(
+                    "Avoiding duplicated UUID "
+                            + entity.getUniqueID()
+                            + " in EntityEventHandler#processEntity(Entity)");
+            Message.debugv(
+                    "This is a strange behaviour. Please alert the mod developer if this becomes a recurring issue.");
             return;
         }
         if (entity instanceof EntityItem) {
             EntityItem entityItem = (EntityItem) entity;
             // Ignoring emerald for sake of our life
-            if(Items.EMERALD.equals(entityItem.getItem().getItem())) return;
+            if (Items.EMERALD.equals(entityItem.getItem().getItem())) return;
 
-            String itemName = entityItem.serializeNBT().getCompoundTag("Item").getCompoundTag("tag").getCompoundTag("display").getString("Name");
+            String itemName =
+                    entityItem
+                            .serializeNBT()
+                            .getCompoundTag("Item")
+                            .getCompoundTag("tag")
+                            .getCompoundTag("display")
+                            .getString("Name");
 
             Type type = ItemDatabase.instance.getItemType(itemName);
 
-            if(type == Type.UNKNOWN) return;
+            if (type == Type.UNKNOWN) return;
 
             // Old schooled way due to involving some huge ass component that I'm too lazy to change
-            if(Main.configuration.isLogging() || Main.configuration.doLogValid()) {
-                ITextComponent itc = Message.builder("Processing item entity " + entity.getName()).build()
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                new TextComponentString(Message.formatJson("Wynncraft Item Name:" + entity.serializeNBT().getCompoundTag("Item").getCompoundTag("tag").getCompoundTag("display").getString("Name") + "\n\n" + "Item name: " + (entity.hasCustomName() ? entity.getCustomNameTag() + "(" + entity.getName() + ")" : entity.getName()) + "\n" + "Item UUID: " + entity.getUniqueID() + "\n\n" + entity.serializeNBT() + "\n\nClick to track!")))
-                        ).setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/compass " +
-                                entity.getPosition().getX() + " " + entity.getPosition().getY() + " " + entity.getPosition().getZ())));
+            if (Main.configuration.isLogging() || Main.configuration.doLogValid()) {
+                ITextComponent itc =
+                        Message.builder("Processing item entity " + entity.getName())
+                                .build()
+                                .setStyle(
+                                        new Style()
+                                                .setHoverEvent(
+                                                        new HoverEvent(
+                                                                HoverEvent.Action.SHOW_TEXT,
+                                                                new TextComponentString(
+                                                                        Message.formatJson(
+                                                                                "Wynncraft Item Name:"
+                                                                                        + entity.serializeNBT()
+                                                                                                .getCompoundTag(
+                                                                                                        "Item")
+                                                                                                .getCompoundTag(
+                                                                                                        "tag")
+                                                                                                .getCompoundTag(
+                                                                                                        "display")
+                                                                                                .getString(
+                                                                                                        "Name")
+                                                                                        + "\n\n"
+                                                                                        + "Item name: "
+                                                                                        + (entity
+                                                                                                        .hasCustomName()
+                                                                                                ? entity
+                                                                                                                .getCustomNameTag()
+                                                                                                        + "("
+                                                                                                        + entity
+                                                                                                                .getName()
+                                                                                                        + ")"
+                                                                                                : entity
+                                                                                                        .getName())
+                                                                                        + "\n"
+                                                                                        + "Item UUID: "
+                                                                                        + entity
+                                                                                                .getUniqueID()
+                                                                                        + "\n\n"
+                                                                                        + entity
+                                                                                                .serializeNBT()
+                                                                                        + "\n\nClick to track!"))))
+                                                .setClickEvent(
+                                                        new ClickEvent(
+                                                                ClickEvent.Action.RUN_COMMAND,
+                                                                "/compass "
+                                                                        + entity.getPosition()
+                                                                                .getX()
+                                                                        + " "
+                                                                        + entity.getPosition()
+                                                                                .getY()
+                                                                        + " "
+                                                                        + entity.getPosition()
+                                                                                .getZ())));
                 Message.sendRaw(itc);
             }
-            if(processToss(entityItem)) return;
-            switch(type) {
+            if (processToss(entityItem)) return;
+            switch (type) {
                 case ITEM:
-                    this.manageRarity(ItemDatabase.instance.getItemRarity(itemName)); break;
+                    this.manageRarity(ItemDatabase.instance.getItemRarity(itemName));
+                    break;
                 case INGREDIENT:
-                    this.stats.addTier(ItemDatabase.instance.getIngredientTier(itemName)); break;
+                    this.stats.addTier(ItemDatabase.instance.getIngredientTier(itemName));
+                    break;
             }
         } else {
             // Process entities here
-            if(KILL_INDICATOR.stream().anyMatch(str -> entity.getName().toLowerCase(Locale.ROOT).contains(str))) {
-                if(Main.configuration.doLogValid()) {
-                    ITextComponent component = Message.builder(Color.MAGENTA + "Processing kill " + entity.getName()).addHoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            Message.of(Message.formatJson(String.valueOf(entity.serializeNBT())))).build();
+            if (KILL_INDICATOR.stream()
+                    .anyMatch(str -> entity.getName().toLowerCase(Locale.ROOT).contains(str))) {
+                if (Main.configuration.doLogValid()) {
+                    ITextComponent component =
+                            Message.builder(Color.MAGENTA + "Processing kill " + entity.getName())
+                                    .addHoverEvent(
+                                            HoverEvent.Action.SHOW_TEXT,
+                                            Message.of(
+                                                    Message.formatJson(
+                                                            String.valueOf(entity.serializeNBT()))))
+                                    .build();
                     Message.sendRaw(component);
                 }
                 stats.addKill();
@@ -153,42 +227,56 @@ public class EntityEventHandler {
     }
 
     private void manageRarity(Rarity rarity) {
-        switch(rarity) {
+        switch (rarity) {
             case MYTHIC:
-                stats.addMythic(); break;
+                stats.addMythic();
+                break;
             case FABLED:
-                stats.addFabled(); break;
+                stats.addFabled();
+                break;
             case LEGENDARY:
-                stats.addLegendary(); break;
+                stats.addLegendary();
+                break;
             case RARE:
-                stats.addRare(); break;
+                stats.addRare();
+                break;
             case SET:
-                stats.addSet(); break;
+                stats.addSet();
+                break;
             case UNIQUE:
-                stats.addUnique(); break;
+                stats.addUnique();
+                break;
             case NORMAL:
-                stats.addNormal(); break;
+                stats.addNormal();
+                break;
             case UNKNOWN:
                 System.err.println("Found unknown rarity!");
         }
     }
 
     private void removeRarity(Rarity rarity) {
-        switch(rarity) {
+        switch (rarity) {
             case MYTHIC:
-                stats.removeMythic(); break;
+                stats.removeMythic();
+                break;
             case FABLED:
-                stats.removeFabled(); break;
+                stats.removeFabled();
+                break;
             case LEGENDARY:
-                stats.removeLegendary(); break;
+                stats.removeLegendary();
+                break;
             case RARE:
-                stats.removeRare(); break;
+                stats.removeRare();
+                break;
             case SET:
-                stats.removeSet(); break;
+                stats.removeSet();
+                break;
             case UNIQUE:
-                stats.removeUnique(); break;
+                stats.removeUnique();
+                break;
             case NORMAL:
-                stats.removeNormal(); break;
+                stats.removeNormal();
+                break;
             case UNKNOWN:
         }
     }

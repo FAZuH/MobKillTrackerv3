@@ -1,7 +1,5 @@
 package io.github.rainvaporeon.fishutils.utils.eventbus.events;
 
-import io.github.rainvaporeon.fishutils.utils.eventbus.events.Event;
-
 import java.util.UUID;
 
 public interface EventBusAccessor {

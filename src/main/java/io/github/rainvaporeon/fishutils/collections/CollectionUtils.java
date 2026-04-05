@@ -11,6 +11,7 @@ public class CollectionUtils {
 
     /**
      * Generates a collection of size and function
+     *
      * @param size The size
      * @param function The function for each individual index
      * @return The generated mutable collection
@@ -18,7 +19,7 @@ public class CollectionUtils {
     public static <T> List<T> generateCollection(int size, IntFunction<T> function) {
         List<T> list = new ArrayList<>(size);
 
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             list.add(function.apply(i));
         }
 

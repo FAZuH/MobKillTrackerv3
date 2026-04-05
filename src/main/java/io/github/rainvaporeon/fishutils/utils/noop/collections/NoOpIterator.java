@@ -4,8 +4,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * An iterator that does nothing, any modifications to this iterator will be discarded,
- * and calling next() or previous() always return null.
+ * An iterator that does nothing, any modifications to this iterator will be discarded, and calling
+ * next() or previous() always return null.
+ *
  * @param <E>
  */
 public final class NoOpIterator<E> implements Iterator<E>, ListIterator<E> {
@@ -40,17 +41,11 @@ public final class NoOpIterator<E> implements Iterator<E>, ListIterator<E> {
     }
 
     @Override
-    public void remove() {
-
-    }
+    public void remove() {}
 
     @Override
-    public void set(E e) {
-
-    }
+    public void set(E e) {}
 
     @Override
-    public void add(E e) {
-
-    }
+    public void add(E e) {}
 }

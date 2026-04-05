@@ -3,23 +3,15 @@ package io.github.rainvaporeon.fishutils.misc.exec;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Represents an execution tree.
- */
+/** Represents an execution tree. */
 public class ExecutionTree<T> {
-    /**
-     * The head node of this tree
-     */
+    /** The head node of this tree */
     private final ExecutionNode<T> head;
 
-    /**
-     * The execution context for this tree
-     */
+    /** The execution context for this tree */
     private final ExecutionContext<T> context;
 
-    /**
-     * The result container for this tree
-     */
+    /** The result container for this tree */
     private final Collection<T> container;
 
     public ExecutionTree(ExecutionContext<T> context) {
@@ -30,6 +22,7 @@ public class ExecutionTree<T> {
 
     /**
      * Starts the execution of this tree.
+     *
      * @throws ExecutionException if the head node throws an exception
      */
     public void start() throws ExecutionException {
@@ -41,10 +34,9 @@ public class ExecutionTree<T> {
     }
 
     /**
-     * Gets the result from the tree.
-     * This method can be called multiple times, and does not
-     * guarantee a consistent outcome unless the execution
-     * has fully finished.
+     * Gets the result from the tree. This method can be called multiple times, and does not
+     * guarantee a consistent outcome unless the execution has fully finished.
+     *
      * @return the produced value
      */
     public T get() {

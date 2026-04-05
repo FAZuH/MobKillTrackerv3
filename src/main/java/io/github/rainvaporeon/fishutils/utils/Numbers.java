@@ -9,7 +9,7 @@ public class Numbers {
     public static byte[] getBytes(long value) {
         char[] chars = Long.toBinaryString(value).toCharArray();
         byte[] bytes = new byte[Long.SIZE];
-        for(int i = bytes.length - 1, j = chars.length - 1; i > 0 && j > 0; i--, j--) {
+        for (int i = bytes.length - 1, j = chars.length - 1; i > 0 && j > 0; i--, j--) {
             bytes[i] = (byte) (chars[j] - '0');
         }
         return bytes;
@@ -18,7 +18,7 @@ public class Numbers {
     public static byte[] getBytes(int value) {
         char[] chars = Integer.toBinaryString(value).toCharArray();
         byte[] bytes = new byte[Integer.SIZE];
-        for(int i = bytes.length - 1, j = chars.length - 1; i > 0 && j > 0; i--, j--) {
+        for (int i = bytes.length - 1, j = chars.length - 1; i > 0 && j > 0; i--, j--) {
             bytes[i] = (byte) (chars[j] - '0');
         }
         return bytes;

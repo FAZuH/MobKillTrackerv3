@@ -4,8 +4,8 @@ import com.spiritlight.mobkilltracker.v3.command.MKTCommand;
 import com.spiritlight.mobkilltracker.v3.command.MKTDebugCommand;
 import com.spiritlight.mobkilltracker.v3.config.Config;
 import com.spiritlight.mobkilltracker.v3.events.ExecutionEvent;
-import com.spiritlight.mobkilltracker.v3.utils.drops.DropManager;
 import com.spiritlight.mobkilltracker.v3.utils.ItemDatabase;
+import com.spiritlight.mobkilltracker.v3.utils.drops.DropManager;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -50,12 +50,13 @@ public class Main {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new com.spiritlight.mobkilltracker.v3.events.EventHandler());
+        MinecraftForge.EVENT_BUS.register(
+                new com.spiritlight.mobkilltracker.v3.events.EventHandler());
     }
 
     @SubscribeEvent
     public void execute(ExecutionEvent event) {
-        if(event.shouldExecute(this)) {
+        if (event.shouldExecute(this)) {
             event.getAction().run();
         }
     }
@@ -68,7 +69,9 @@ public class Main {
         } catch (Throwable t) {
             t.printStackTrace();
             if (t instanceof ThreadDeath) throw (ThreadDeath) t;
-            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), t);
+            Thread.currentThread()
+                    .getUncaughtExceptionHandler()
+                    .uncaughtException(Thread.currentThread(), t);
         }
     }
 
@@ -80,7 +83,9 @@ public class Main {
         } catch (Throwable t) {
             t.printStackTrace();
             if (t instanceof ThreadDeath) throw (ThreadDeath) t;
-            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), t);
+            Thread.currentThread()
+                    .getUncaughtExceptionHandler()
+                    .uncaughtException(Thread.currentThread(), t);
         }
     }
 }

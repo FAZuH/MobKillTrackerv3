@@ -2,7 +2,6 @@ package io.github.rainvaporeon.fishutils.logging;
 
 import io.github.rainvaporeon.fishutils.action.Result;
 import io.github.rainvaporeon.fishutils.utils.noop.io.NoOpPrintStream;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -10,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 public class Logger implements ILogger {
@@ -58,8 +56,8 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Configures this stream to direct all default outputs to {@link System#out}, and
-     * all errors to {@link System#err}
+     * Configures this stream to direct all default outputs to {@link System#out}, and all errors to
+     * {@link System#err}
      */
     public void configured() {
         setOutputStream(System.out);
@@ -69,7 +67,7 @@ public class Logger implements ILogger {
 
     public Result setOut(File out) {
         try {
-            if(!out.exists()) out.createNewFile();
+            if (!out.exists()) out.createNewFile();
             Field field = this.getClass().getDeclaredField("out");
             field.setAccessible(true);
             field.set(this, out);
@@ -82,6 +80,7 @@ public class Logger implements ILogger {
 
     /**
      * Sets the output stream source
+     *
      * @param stream the stream
      */
     public void setOutputStream(PrintStream stream) {
@@ -90,9 +89,10 @@ public class Logger implements ILogger {
 
     /**
      * Sets the error stream
+     *
      * @param errStream the stream
-     * @apiNote this will forward anything at severity {@code ERROR} or {@code FATAL}
-     * to this stream.
+     * @apiNote this will forward anything at severity {@code ERROR} or {@code FATAL} to this
+     *     stream.
      * @since 1.2.8
      */
     public void setErrStream(PrintStream errStream) {
@@ -101,6 +101,7 @@ public class Logger implements ILogger {
 
     /**
      * Sets the debug stream
+     *
      * @param debugStream the stream
      * @apiNote this will forward anything at severity {@code DEBUG} to this stream.
      * @since 1.2.8
@@ -111,6 +112,7 @@ public class Logger implements ILogger {
 
     /**
      * Directs all streams to this output stream
+     *
      * @param stream the stream
      * @since 1.2.8
      */
@@ -125,14 +127,12 @@ public class Logger implements ILogger {
 
         stream.println("[" + name + "] " + severity + message + RESET);
 
-        if(out != null)
-            writeLog("[" + name + "] " + severity + ": " + message);
+        if (out != null) writeLog("[" + name + "] " + severity + ": " + message);
         if (t != null) {
             stream.print(severity);
             t.printStackTrace(getOutput(Severity.ERROR));
             stream.println(RESET);
-            if(out != null)
-                writeError(t);
+            if (out != null) writeError(t);
         }
     }
 
@@ -213,14 +213,13 @@ public class Logger implements ILogger {
     // Since the log is same across all threads, we use static
 
     /**
-     * Writes to the logging file. This will get the
-     * logging file, append a new line and then
-     * append the provided contents.
+     * Writes to the logging file. This will get the logging file, append a new line and then append
+     * the provided contents.
      *
      * @param contents The contents to append to
      */
     private void writeLog(String... contents) {
-        if(out == null) throw new NullPointerException();
+        if (out == null) throw new NullPointerException();
         try {
             append(out.toPath(), contents);
         } catch (Exception e) {
@@ -229,16 +228,15 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Prints the specified throwable instance
-     * to the logging file. This always append
-     * a new line before printing the exception.
+     * Prints the specified throwable instance to the logging file. This always append a new line
+     * before printing the exception.
      *
      * @param t The throwable to print
      */
     private void writeError(Throwable t) {
-        if(out == null) throw new NullPointerException();
+        if (out == null) throw new NullPointerException();
         synchronized (out) {
-            try(PrintStream stream = new PrintStream(new FileOutputStream(out, true))) {
+            try (PrintStream stream = new PrintStream(new FileOutputStream(out, true))) {
                 newline(out.toPath());
                 t.printStackTrace(stream);
             } catch (FileNotFoundException e) {
@@ -270,7 +268,8 @@ public class Logger implements ILogger {
         append(p, false, false, "\n");
     }
 
-    // Appends to the given path, providing date to log, and adds a new line before printing the content.
+    // Appends to the given path, providing date to log, and adds a new line before printing the
+    // content.
     // Each new entry will be printed a new line if the newLine option is true
     private void append(Path path, String... content) {
         append(path, true, true, content);
@@ -278,6 +277,7 @@ public class Logger implements ILogger {
 
     /**
      * Appends content to the log
+     *
      * @param path The path to append to
      * @param date Whether to timestamp
      * @param newLine Whether a new line is required
@@ -286,11 +286,16 @@ public class Logger implements ILogger {
     private void append(Path path, boolean date, boolean newLine, String... content) {
         try {
             synchronized (out) {
-                for(String line : content) {
-                    if(newLine && !line.equals("\n")) {
+                for (String line : content) {
+                    if (newLine && !line.equals("\n")) {
                         newline(path);
                     }
-                    Files.writeString(path, date ? "[" + format.format(new Date()) + "] " + line : line, StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                    Files.writeString(
+                            path,
+                            date ? "[" + format.format(new Date()) + "] " + line : line,
+                            StandardOpenOption.APPEND,
+                            StandardOpenOption.CREATE,
+                            StandardOpenOption.WRITE);
                 }
             }
         } catch (IOException e) {

@@ -3,13 +3,12 @@ package com.spiritlight.adapters.fabric.game.impl;
 import com.spiritlight.adapters.fabric.entity.FabricEntity;
 import com.spiritlight.adapters.fabric.entity.FabricPlayer;
 import com.spiritlight.adapters.fabric.game.FabricClient;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+import org.jetbrains.annotations.NotNull;
 
 public class FabricClientImpl implements FabricClient {
 
@@ -27,9 +26,11 @@ public class FabricClientImpl implements FabricClient {
     @Override
     public List<FabricEntity> getEntities(Predicate<FabricEntity> filter) {
         ClientWorld world = entity.world;
-        if(world == null) return List.of();
+        if (world == null) return List.of();
         return StreamSupport.stream(world.getEntities().spliterator(), false)
-                .map(FabricEntity::of).filter(filter).toList();
+                .map(FabricEntity::of)
+                .filter(filter)
+                .toList();
     }
 
     @Override

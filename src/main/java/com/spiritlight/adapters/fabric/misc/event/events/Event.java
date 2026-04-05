@@ -1,4 +1,3 @@
 package com.spiritlight.adapters.fabric.misc.event.events;
 
-public class Event {
-}
+public class Event {}

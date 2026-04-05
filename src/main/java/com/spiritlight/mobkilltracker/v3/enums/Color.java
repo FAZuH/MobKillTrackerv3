@@ -14,11 +14,16 @@ public enum Color {
     GREEN("a"),
     AQUA("b"),
     RED("c"),
-    LIGHT_PURPLE("d"), MAGENTA("d"),
+    LIGHT_PURPLE("d"),
+    MAGENTA("d"),
     YELLOW("e"),
     WHITE("f"),
-    RESET("r"), ITALIC("o"), UNDERLINE("n"), STRIKETHROUGH("m"), BOLD("l"), OBFUSCATED("k")
-    ;
+    RESET("r"),
+    ITALIC("o"),
+    UNDERLINE("n"),
+    STRIKETHROUGH("m"),
+    BOLD("l"),
+    OBFUSCATED("k");
 
     final String id;
 

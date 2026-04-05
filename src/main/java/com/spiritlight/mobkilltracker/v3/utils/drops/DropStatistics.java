@@ -1,31 +1,28 @@
 package com.spiritlight.mobkilltracker.v3.utils.drops;
 
-import com.google.gson.Gson;
+import static com.spiritlight.mobkilltracker.v3.enums.Rarity.*;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.spiritlight.mobkilltracker.v3.annotations.Synchronized;
 import com.spiritlight.mobkilltracker.v3.enums.Tier;
-
 import java.util.Objects;
-
-import static com.spiritlight.mobkilltracker.v3.enums.Rarity.*;
 
 public class DropStatistics {
     private final Object lock = new Object();
 
-    private volatile int
-    mythic = 0,
-    fabled = 0,
-    legendary = 0,
-    rare = 0,
-    set = 0,
-    unique = 0,
-    normal = 0,
-    ingredient3 = 0,
-    ingredient2 = 0,
-    ingredient1 = 0,
-    ingredient0 = 0,
-    kills = 0;
+    private volatile int mythic = 0,
+            fabled = 0,
+            legendary = 0,
+            rare = 0,
+            set = 0,
+            unique = 0,
+            normal = 0,
+            ingredient3 = 0,
+            ingredient2 = 0,
+            ingredient1 = 0,
+            ingredient0 = 0,
+            kills = 0;
 
     private String note;
 
@@ -48,33 +45,47 @@ public class DropStatistics {
     }
 
     public static final int ITEM = 0, INGREDIENT = 1, ALL = 2;
+
     public int getQuantity(int type) {
-        return type == ITEM ?
+        return type == ITEM
+                ?
                 // item total
-                mythic + fabled + legendary + rare + set + unique + normal :
-                type == INGREDIENT ?
-                // ingredient total
-                ingredient3 + ingredient2 + ingredient1 + ingredient0 :
-                mythic + fabled + legendary + rare + set + unique+ normal +
-                ingredient3 + ingredient2 + ingredient1 + ingredient0;
+                mythic + fabled + legendary + rare + set + unique + normal
+                : type == INGREDIENT
+                        ?
+                        // ingredient total
+                        ingredient3 + ingredient2 + ingredient1 + ingredient0
+                        : mythic
+                                + fabled
+                                + legendary
+                                + rare
+                                + set
+                                + unique
+                                + normal
+                                + ingredient3
+                                + ingredient2
+                                + ingredient1
+                                + ingredient0;
     }
 
     /**
      * Gets this session's total weight
+     *
      * @return The total weight
      */
     public double getTotalWeight() {
-        return mythic * MYTHIC.getWeight() +
-                fabled * FABLED.getWeight() +
-                legendary * LEGENDARY.getWeight() +
-                rare * RARE.getWeight() +
-                set * SET.getWeight() +
-                unique * UNIQUE.getWeight() +
-                normal * NORMAL.getWeight();
+        return mythic * MYTHIC.getWeight()
+                + fabled * FABLED.getWeight()
+                + legendary * LEGENDARY.getWeight()
+                + rare * RARE.getWeight()
+                + set * SET.getWeight()
+                + unique * UNIQUE.getWeight()
+                + normal * NORMAL.getWeight();
     }
 
     /**
      * Gets this session's average weight
+     *
      * @return The total weight, divided by the items
      */
     public double getAverageWeight() {
@@ -82,8 +93,8 @@ public class DropStatistics {
     }
 
     /**
-     * Gets this session's rarity index
-     * This shows the average rarity weight from each mob kill
+     * Gets this session's rarity index This shows the average rarity weight from each mob kill
+     *
      * @return The average weight, divided by the kills
      */
     public double getRarityIndex() {
@@ -174,13 +185,17 @@ public class DropStatistics {
         synchronized (lock) {
             switch (tier) {
                 case THREE:
-                    ingredient3++; break;
+                    ingredient3++;
+                    break;
                 case TWO:
-                    ingredient2++; break;
+                    ingredient2++;
+                    break;
                 case ONE:
-                    ingredient1++; break;
+                    ingredient1++;
+                    break;
                 case ZERO:
-                    ingredient0++; break;
+                    ingredient0++;
+                    break;
                 case UNKNOWN:
                     System.out.println("Found unknown rarity");
             }
@@ -248,13 +263,17 @@ public class DropStatistics {
         synchronized (lock) {
             switch (tier) {
                 case THREE:
-                    ingredient3--; break;
+                    ingredient3--;
+                    break;
                 case TWO:
-                    ingredient2--; break;
+                    ingredient2--;
+                    break;
                 case ONE:
-                    ingredient1--; break;
+                    ingredient1--;
+                    break;
                 case ZERO:
-                    ingredient0--; break;
+                    ingredient0--;
+                    break;
                 case UNKNOWN:
                     System.out.println("Found unknown tier");
             }
@@ -374,11 +393,36 @@ public class DropStatistics {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DropStatistics that = (DropStatistics) o;
-        return mythic == that.mythic && fabled == that.fabled && legendary == that.legendary && rare == that.rare && set == that.set && unique == that.unique && normal == that.normal && ingredient3 == that.ingredient3 && ingredient2 == that.ingredient2 && ingredient1 == that.ingredient1 && ingredient0 == that.ingredient0 && kills == that.kills && Objects.equals(note, that.note);
+        return mythic == that.mythic
+                && fabled == that.fabled
+                && legendary == that.legendary
+                && rare == that.rare
+                && set == that.set
+                && unique == that.unique
+                && normal == that.normal
+                && ingredient3 == that.ingredient3
+                && ingredient2 == that.ingredient2
+                && ingredient1 == that.ingredient1
+                && ingredient0 == that.ingredient0
+                && kills == that.kills
+                && Objects.equals(note, that.note);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mythic, fabled, legendary, rare, set, unique, normal, ingredient3, ingredient2, ingredient1, ingredient0, kills, note);
+        return Objects.hash(
+                mythic,
+                fabled,
+                legendary,
+                rare,
+                set,
+                unique,
+                normal,
+                ingredient3,
+                ingredient2,
+                ingredient1,
+                ingredient0,
+                kills,
+                note);
     }
 }

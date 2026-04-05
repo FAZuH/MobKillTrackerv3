@@ -5,22 +5,14 @@ import com.spiritlight.mobkilltracker.v3.core.DataHandler;
 import com.spiritlight.mobkilltracker.v3.utils.drops.DropManager;
 import com.spiritlight.mobkilltracker.v3.utils.drops.DropStatistics;
 import com.spiritlight.mobkilltracker.v3.utils.minecraft.Message;
+import java.text.DecimalFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
-import java.text.DecimalFormat;
-import java.util.LinkedList;
-import java.util.List;
-
-/**
- * A general event handler in which processes most events
- */
+/** A general event handler in which processes most events */
 public class EventHandler {
 
     @SubscribeEvent
@@ -37,19 +29,23 @@ public class EventHandler {
             return; // Ignore
         }
         Message.info("Found a totem, started recording...");
-        DataHandler.newListenedHandler().onTerminate(() -> true).whenComplete(DropManager.instance::insert).start();
+        DataHandler.newListenedHandler()
+                .onTerminate(() -> true)
+                .whenComplete(DropManager.instance::insert)
+                .start();
     }
 
     @SubscribeEvent
     public void onMessageReceived(ClientChatReceivedEvent chat) {
-        if(!Main.configuration.isModEnabled()) return;
+        if (!Main.configuration.isModEnabled()) return;
         final String message = chat.getMessage().getUnformattedText();
-        if((message.contains("placed a mob totem") && !message.contains("["))) {
+        if ((message.contains("placed a mob totem") && !message.contains("["))) {
             MinecraftForge.EVENT_BUS.post(new TotemEvent());
         }
     }
 
     private static final DecimalFormat df = new DecimalFormat("0.00");
+
     @SubscribeEvent
     public void onCompletion(CompletionEvent event) {
         if (Minecraft.getMinecraft().player == null) return;
@@ -63,26 +59,61 @@ public class EventHandler {
         double ingRate = (ingDrops == 0 ? 0 : (double) kills / ingDrops);
         double itemRate = (itemDrops == 0 ? 0 : (double) kills / itemDrops);
         Message.info(
-                "\n" +
-                        "§3§l Mob Totem Ended\n" +
-                        "§rTotal Mobs Killed: §c" + kills + "\n" +
-                        "§rTotal Items Dropped: §a" + totalDrops + "\n" +
-                        "\n" +
-                        "§6§l Item Summary: \n" +
-                        "§rIngredient Drops: §b[✫✫✫] §rx" + drops.getIngredient3() + " §d[✫✫§8✫§d] §rx" + drops.getIngredient2() + " §e[✫§8✫✫§e] §rx" + drops.getIngredient1() + " §7[§8✫✫✫§7] §rx" + drops.getIngredient0() + "\n" +
-                        "§5§lMythic §rDrops: " + drops.getMythic() + "\n" +
-                        "§cFabled §rDrops: " + drops.getFabled() + "\n" +
-                        "§bLegendary §rDrops: " + drops.getLegendary() + "\n" +
-                        "§dRare §rDrops: " + drops.getRare() + "\n" +
-                        "§aSet §rDrops: " + drops.getSet() + "\n" +
-                        "§eUnique §rDrops: " + drops.getUnique() + "\n" +
-                        "§rNormal §rDrops: " + drops.getNormal() + "\n" +
-                        "Total drops: Item " + itemDrops + ", Ingredients " + ingDrops +
-                        "\n §c§lAdvanced details:\n" +
-                        "§rItem Rate: " + df.format(itemRate) + " §7(Mobs/item)" + "\n" +
-                        "§rIngredient Rate: " + df.format(ingRate) + " §7(Mobs/Ingredient)" + "\n" +
-                        "§rRarity Index: " + drops.getRarityIndex()
-        );
+                "\n"
+                        + "§3§l Mob Totem Ended\n"
+                        + "§rTotal Mobs Killed: §c"
+                        + kills
+                        + "\n"
+                        + "§rTotal Items Dropped: §a"
+                        + totalDrops
+                        + "\n"
+                        + "\n"
+                        + "§6§l Item Summary: \n"
+                        + "§rIngredient Drops: §b[✫✫✫] §rx"
+                        + drops.getIngredient3()
+                        + " §d[✫✫§8✫§d] §rx"
+                        + drops.getIngredient2()
+                        + " §e[✫§8✫✫§e] §rx"
+                        + drops.getIngredient1()
+                        + " §7[§8✫✫✫§7] §rx"
+                        + drops.getIngredient0()
+                        + "\n"
+                        + "§5§lMythic §rDrops: "
+                        + drops.getMythic()
+                        + "\n"
+                        + "§cFabled §rDrops: "
+                        + drops.getFabled()
+                        + "\n"
+                        + "§bLegendary §rDrops: "
+                        + drops.getLegendary()
+                        + "\n"
+                        + "§dRare §rDrops: "
+                        + drops.getRare()
+                        + "\n"
+                        + "§aSet §rDrops: "
+                        + drops.getSet()
+                        + "\n"
+                        + "§eUnique §rDrops: "
+                        + drops.getUnique()
+                        + "\n"
+                        + "§rNormal §rDrops: "
+                        + drops.getNormal()
+                        + "\n"
+                        + "Total drops: Item "
+                        + itemDrops
+                        + ", Ingredients "
+                        + ingDrops
+                        + "\n §c§lAdvanced details:\n"
+                        + "§rItem Rate: "
+                        + df.format(itemRate)
+                        + " §7(Mobs/item)"
+                        + "\n"
+                        + "§rIngredient Rate: "
+                        + df.format(ingRate)
+                        + " §7(Mobs/Ingredient)"
+                        + "\n"
+                        + "§rRarity Index: "
+                        + drops.getRarityIndex());
     }
 
     /* Logging Only */

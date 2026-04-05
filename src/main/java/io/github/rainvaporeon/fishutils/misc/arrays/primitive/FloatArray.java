@@ -1,14 +1,10 @@
 package io.github.rainvaporeon.fishutils.misc.arrays.primitive;
 
 import io.github.rainvaporeon.fishutils.misc.arrays.PrimitiveArrayLike;
-
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.IntFunction;
 
-/**
- * A class representing an optionally mutable float array.
- */
+/** A class representing an optionally mutable float array. */
 public class FloatArray extends PrimitiveArrayLike<Float> {
     private final float[] array;
     private final boolean mutable;
@@ -50,7 +46,7 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
 
     @Override
     public void setFloat(int index, float value) {
-        if(mutable) {
+        if (mutable) {
             checkRange(index);
             array[index] = value;
         } else {
@@ -63,7 +59,7 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
     }
 
     protected void checkRange(int val) {
-        if(val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
+        if (val < 0 || val >= size()) throw new IndexOutOfBoundsException(val);
     }
 
     @Override
@@ -72,12 +68,12 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
     }
 
     public FloatArray toMutable() {
-        if(this.mutable) return this;
+        if (this.mutable) return this;
         return new FloatArray(this.array.clone(), true);
     }
 
     public FloatArray toImmutable() {
-        if(!this.mutable) return this;
+        if (!this.mutable) return this;
         return new FloatArray(this.array.clone(), false);
     }
 
@@ -88,6 +84,7 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
 
     /**
      * Converts the given float array to an immutable FloatArray
+     *
      * @param array the array
      * @return the wrapped FloatArray
      */
@@ -97,6 +94,7 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to 0.
+     *
      * @param size the size
      * @return an immutable array filled with zeroes.
      */
@@ -106,6 +104,7 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
 
     /**
      * Creates an immutable array with size {@code size} and all elements set to {@code value}.
+     *
      * @param size the size
      * @param value the value
      * @return an immutable array filled with {@code value}.
@@ -117,15 +116,16 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
     }
 
     /**
-     * Creates an immutable array with size {@code size} and mapped
-     * individually to its position as described by {@code mapper}
+     * Creates an immutable array with size {@code size} and mapped individually to its position as
+     * described by {@code mapper}
+     *
      * @param size the size
      * @param mapper the mapper
      * @return a new FloatArray
      */
     public static FloatArray create(int size, IntFunction<Float> mapper) {
         float[] v = new float[size];
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             v[i] = mapper.apply(i);
         }
         return new FloatArray(v);
@@ -148,5 +148,4 @@ public class FloatArray extends PrimitiveArrayLike<Float> {
     public int hashCode() {
         return Arrays.hashCode(array);
     }
-
 }

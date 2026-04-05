@@ -51,7 +51,7 @@ public class ConcurrentEffect<T> implements Effect<T> {
     @Override
     public void onUpdate(T value) {
         synchronized (listenerMutex) {
-            for(Consumer<T> consumer : this.listeners) {
+            for (Consumer<T> consumer : this.listeners) {
                 consumer.accept(value);
             }
         }

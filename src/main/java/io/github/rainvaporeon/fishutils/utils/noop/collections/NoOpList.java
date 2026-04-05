@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * A list implementation that does nothing, the iterator
- * is always empty, and all mutation calls will be voided.
+ * A list implementation that does nothing, the iterator is always empty, and all mutation calls
+ * will be voided.
+ *
  * @param <E>
  * @see NoOpIterator
  */
@@ -37,7 +38,8 @@ public class NoOpList<E> implements List<E> {
         return new Object[0];
     }
 
-    @Override @SuppressWarnings("unchecked") /* Empty array */
+    @Override
+    @SuppressWarnings("unchecked") /* Empty array */
     public <T> T[] toArray(T[] a) {
         return (T[]) toArray();
     }
@@ -78,9 +80,7 @@ public class NoOpList<E> implements List<E> {
     }
 
     @Override
-    public void clear() {
-
-    }
+    public void clear() {}
 
     @Override
     public E get(int index) {
@@ -93,9 +93,7 @@ public class NoOpList<E> implements List<E> {
     }
 
     @Override
-    public void add(int index, E element) {
-
-    }
+    public void add(int index, E element) {}
 
     @Override
     public E remove(int index) {

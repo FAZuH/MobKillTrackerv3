@@ -11,12 +11,13 @@ public class ConcurrentTimedSet<E> extends AbstractSet<E> {
 
     private final Map<E, ObjectDescriptor<E>> map = new ConcurrentHashMap<>();
 
-    private final ObjectDescriptor<E> EMPTY = new ObjectDescriptor<E>(null, 0) {
-        @Override
-        public boolean expired() {
-            return true;
-        }
-    };
+    private final ObjectDescriptor<E> EMPTY =
+            new ObjectDescriptor<E>(null, 0) {
+                @Override
+                public boolean expired() {
+                    return true;
+                }
+            };
 
     public ConcurrentTimedSet(long delay, TimeUnit unit) {
         this.delay = delay;
@@ -35,7 +36,7 @@ public class ConcurrentTimedSet<E> extends AbstractSet<E> {
     }
 
     private boolean isEmpty(Object o) {
-        if(o instanceof ObjectDescriptor) {
+        if (o instanceof ObjectDescriptor) {
             return ((ObjectDescriptor<?>) o).expired();
         }
         return o == null;
@@ -44,7 +45,7 @@ public class ConcurrentTimedSet<E> extends AbstractSet<E> {
     @Override
     public boolean contains(Object o) {
         ObjectDescriptor<E> od = map.getOrDefault(o, EMPTY);
-        if(od.expired()) {
+        if (od.expired()) {
             map.remove(o);
             return false;
         } else return true;
@@ -80,7 +81,7 @@ public class ConcurrentTimedSet<E> extends AbstractSet<E> {
         }
 
         public E getElement() {
-            if(this.expired()) expiry();
+            if (this.expired()) expiry();
             return element;
         }
 
@@ -94,7 +95,13 @@ public class ConcurrentTimedSet<E> extends AbstractSet<E> {
 
         @Override
         public String toString() {
-            return "ObjectDescriptor{element=" + element.toString() + ",time=" + age + ",expired=" + this.expired() + "}";
+            return "ObjectDescriptor{element="
+                    + element.toString()
+                    + ",time="
+                    + age
+                    + ",expired="
+                    + this.expired()
+                    + "}";
         }
     }
 }

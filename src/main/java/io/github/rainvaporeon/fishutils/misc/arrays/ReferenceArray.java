@@ -9,7 +9,8 @@ public class ReferenceArray<T> extends ArrayLike<T> {
         this(false, array);
     }
 
-    @SafeVarargs @SuppressWarnings("unchecked")
+    @SafeVarargs
+    @SuppressWarnings("unchecked")
     public ReferenceArray(boolean mutable, T... array) {
         super((Class<T>) array.getClass().componentType());
         this.array = array;
@@ -24,7 +25,7 @@ public class ReferenceArray<T> extends ArrayLike<T> {
 
     @Override
     public void set(int index, T value) {
-        if(!mutable) throw new UnsupportedOperationException();
+        if (!mutable) throw new UnsupportedOperationException();
         array[index] = value;
     }
 

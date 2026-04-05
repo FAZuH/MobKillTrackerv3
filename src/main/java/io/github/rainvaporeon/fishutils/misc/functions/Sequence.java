@@ -13,7 +13,7 @@ public interface Sequence<T> {
     default void forEach(Consumer<? super T> consumer) {
         try {
             // It will complete after throwing an exception
-            for(int i = 0;;i++) consumer.accept(this.get(i));
+            for (int i = 0; ; i++) consumer.accept(this.get(i));
         } catch (Exception e) {
             /* no-op */
         }
@@ -29,13 +29,17 @@ public interface Sequence<T> {
             T element;
             do {
                 element = this.getAt(cursor++);
-                if(predicate.test(element)) index--;
+                if (predicate.test(element)) index--;
             } while (index >= 0);
             return element;
         };
     }
 
     private T getAt(int idx) {
-        try { return get(idx); } catch (IndexOutOfBoundsException ex) { throw new NoSuchElementException(); }
+        try {
+            return get(idx);
+        } catch (IndexOutOfBoundsException ex) {
+            throw new NoSuchElementException();
+        }
     }
 }

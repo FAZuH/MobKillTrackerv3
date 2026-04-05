@@ -13,7 +13,8 @@ public class Option {
     private final Object value;
 
     private Option(String key, Object value) {
-        if(map.containsKey(key)) throw new IllegalArgumentException("option " + key + " already registered");
+        if (map.containsKey(key))
+            throw new IllegalArgumentException("option " + key + " already registered");
         this.value = value;
         map.put(key, this);
     }
@@ -64,7 +65,7 @@ public class Option {
     }
 
     public int getAsInt() {
-        if(this.value instanceof Integer) return (int) this.value;
+        if (this.value instanceof Integer) return (int) this.value;
         try {
             return Integer.parseInt(String.valueOf(this.value));
         } catch (NumberFormatException ex) {
@@ -73,7 +74,7 @@ public class Option {
     }
 
     public double getAsDouble() {
-        if(this.value instanceof Number n) return n.doubleValue();
+        if (this.value instanceof Number n) return n.doubleValue();
         try {
             return Double.parseDouble(String.valueOf(this.value));
         } catch (NumberFormatException ex) {

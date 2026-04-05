@@ -1,6 +1,5 @@
 package io.github.rainvaporeon.fishutils.misc.functions;
 
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public interface Predicates {

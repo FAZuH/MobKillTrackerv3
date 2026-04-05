@@ -2,17 +2,17 @@ package io.github.rainvaporeon.fishutils.random;
 
 import io.github.rainvaporeon.fishutils.utils.Numbers;
 import io.github.rainvaporeon.fishutils.utils.enums.Secure;
-
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * A weighted random, this type of random is synchronized, meaning
- * it may be used across threads safely without throwing an exception.
- * <p>
- *     The underlying random instance always uses a SecureRandom unless
- *     the {@link io.github.rainvaporeon.fishutils.utils.enums.Secure} parameter is NO.
+ * A weighted random, this type of random is synchronized, meaning it may be used across threads
+ * safely without throwing an exception.
+ *
+ * <p>The underlying random instance always uses a SecureRandom unless the {@link
+ * io.github.rainvaporeon.fishutils.utils.enums.Secure} parameter is NO.
+ *
  * @param <T>
  */
 public class WeightedRandom<T> {
@@ -24,7 +24,7 @@ public class WeightedRandom<T> {
     }
 
     public WeightedRandom(Secure secure) {
-        if(secure == Secure.NO) {
+        if (secure == Secure.NO) {
             RANDOM = new Random();
         } else {
             byte[] random = new byte[256];
@@ -39,14 +39,15 @@ public class WeightedRandom<T> {
 
     /**
      * Generates the next element
+     *
      * @return the element
      */
     public T getNext() {
         synchronized (mutex) {
             int value = RANDOM.nextInt(totalWeight) + 1;
-            for(Map.Entry<T, Integer> entry : weightMap.entrySet()) {
+            for (Map.Entry<T, Integer> entry : weightMap.entrySet()) {
                 value -= entry.getValue();
-                if(value <= 0) {
+                if (value <= 0) {
                     return entry.getKey();
                 }
             }
@@ -56,6 +57,7 @@ public class WeightedRandom<T> {
 
     /**
      * Retrieves all possible outcomes
+     *
      * @return
      */
     public Set<T> getOutcomes() {
@@ -64,11 +66,12 @@ public class WeightedRandom<T> {
 
     /**
      * Adds a new object into the generator
+     *
      * @param object The object, it should not be in the list already.
      * @param weight The weight of the object, should be higher than 0
      */
     public void addObject(T object, int weight) {
-        if(weight < 0) throw new IllegalArgumentException("weight cannot be less than 0");
+        if (weight < 0) throw new IllegalArgumentException("weight cannot be less than 0");
 
         synchronized (mutex) {
             weightMap.put(object, weight);
@@ -78,10 +81,11 @@ public class WeightedRandom<T> {
 
     /**
      * Updates the object with a new weight
+     *
      * @param object the object
      * @param weight the weight of the object, should be higher than 0
-     * @apiNote This call is equal to calling {@link WeightedRandom#removeObject(Object)}
-     * and then call {@link WeightedRandom#addObject(Object, int)}
+     * @apiNote This call is equal to calling {@link WeightedRandom#removeObject(Object)} and then
+     *     call {@link WeightedRandom#addObject(Object, int)}
      */
     public void updateObject(T object, int weight) {
         removeObject(object);
@@ -90,6 +94,7 @@ public class WeightedRandom<T> {
 
     /**
      * Removes this object from the random
+     *
      * @param object the object
      */
     public void removeObject(T object) {
@@ -100,10 +105,9 @@ public class WeightedRandom<T> {
     }
 
     /**
-     * Retrieves a stream source of this generator, the
-     * underlying stream is infinitely-supplying, and
-     * structure modifications will have an impact
-     * on the generated object.
+     * Retrieves a stream source of this generator, the underlying stream is infinitely-supplying,
+     * and structure modifications will have an impact on the generated object.
+     *
      * @return an infinitely supplying stream which calls {@link WeightedRandom#getNext()}
      */
     public Stream<T> infinitelySupplyingStream() {
@@ -112,12 +116,13 @@ public class WeightedRandom<T> {
 
     /**
      * Retrieves the probability (in double) of getting this value in a roll
+     *
      * @param object the object
-     * @return 0 if it is absent or is configured to have no odds of generating,
-     * otherwise a number between 0.0 to 1.0 denoting the odds of rolling this element.
+     * @return 0 if it is absent or is configured to have no odds of generating, otherwise a number
+     *     between 0.0 to 1.0 denoting the odds of rolling this element.
      */
     public double getProbabilityOf(T object) {
-        if(!weightMap.containsKey(object)) return 0;
+        if (!weightMap.containsKey(object)) return 0;
         return (double) weightMap.get(object) / totalWeight;
     }
 

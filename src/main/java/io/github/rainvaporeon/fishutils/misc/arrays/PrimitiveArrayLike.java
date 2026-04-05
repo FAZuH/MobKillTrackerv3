@@ -4,14 +4,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 /**
- * Base class for any primitive array-alike.
- * This class provides support for all primitive getter methods
- * as well as setter methods.
+ * Base class for any primitive array-alike. This class provides support for all primitive getter
+ * methods as well as setter methods.
+ *
  * @param <T> the type
- * @apiNote When extending this class, please make sure to override all
- * respective getter and setter methods to fit your implementation.
- * The default implementation for them is usually unoptimized and would
- * benefit from almost any sort of implementation.
+ * @apiNote When extending this class, please make sure to override all respective getter and setter
+ *     methods to fit your implementation. The default implementation for them is usually
+ *     unoptimized and would benefit from almost any sort of implementation.
  */
 public abstract class PrimitiveArrayLike<T> extends ArrayLike<T> {
     protected final Class<?> primitiveType;
@@ -86,58 +85,58 @@ public abstract class PrimitiveArrayLike<T> extends ArrayLike<T> {
     }
 
     public void fill(int from, int to, byte value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     public void fill(int from, int to, short value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     public void fill(int from, int to, char value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     public void fill(int from, int to, int value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     public void fill(int from, int to, float value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     public void fill(int from, int to, double value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     public void fill(int from, int to, long value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     public void fill(int from, int to, boolean value) {
-        for(int i = from; i < to; i++) {
+        for (int i = from; i < to; i++) {
             this.setAs(i, value);
         }
     }
 
     private Object getAt(int index) {
         Iterator<?> it = this.iterator();
-        for(int i = 0; it.hasNext(); i++) {
+        for (int i = 0; it.hasNext(); i++) {
             Object o = it.next();
-            if(i == index) return o;
+            if (i == index) return o;
         }
         throw new IndexOutOfBoundsException(index);
     }
@@ -148,9 +147,9 @@ public abstract class PrimitiveArrayLike<T> extends ArrayLike<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) return false;
-        if(obj instanceof PrimitiveArrayLike<?> al) {
-            if(this.type != al.type && this.primitiveType != al.primitiveType) return false;
+        if (obj == null) return false;
+        if (obj instanceof PrimitiveArrayLike<?> al) {
+            if (this.type != al.type && this.primitiveType != al.primitiveType) return false;
             return Arrays.deepEquals(this.toArray(), al.toArray());
         }
         return false;

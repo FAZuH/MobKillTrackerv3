@@ -4,6 +4,7 @@ public interface TestInstruction<T> {
 
     /**
      * Tests whether the value is equal to the other
+     *
      * @param other the object
      * @param message the message if it is not equal
      * @return
@@ -12,6 +13,7 @@ public interface TestInstruction<T> {
 
     /**
      * Tests whether the value is larger than the other
+     *
      * @param other the object
      * @param message the message if it is not greater
      * @return
@@ -20,6 +22,7 @@ public interface TestInstruction<T> {
 
     /**
      * Tests whether the value is lesser than the other
+     *
      * @param other the object
      * @param message the message if it is not lesser
      * @return
@@ -28,6 +31,7 @@ public interface TestInstruction<T> {
 
     /**
      * Tests whether this instruction throws the exception
+     *
      * @param clazz the exception class
      * @param message the message if it is not
      * @return

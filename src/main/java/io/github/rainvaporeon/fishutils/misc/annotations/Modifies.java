@@ -3,10 +3,9 @@ package io.github.rainvaporeon.fishutils.misc.annotations;
 import java.lang.annotation.*;
 
 /**
- * Annotation denoting that this method may be modifying the given
- * parameters. Alternatively, {@link Modifies#NONE} may be used
- * to indicate that no parameters are modified when passing into
- * the annotated method.
+ * Annotation denoting that this method may be modifying the given parameters. Alternatively, {@link
+ * Modifies#NONE} may be used to indicate that no parameters are modified when passing into the
+ * annotated method.
  *
  * @since 1.2.5
  */

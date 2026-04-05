@@ -16,22 +16,25 @@ public class HttpRequests {
         try (Response response = client.newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
         } catch (NullPointerException | IOException ex) {
-            LogManager.getLogger("FishHelper/Connection").error("Failed to retrieve data from {}: ", url, ex);
+            LogManager.getLogger("FishHelper/Connection")
+                    .error("Failed to retrieve data from {}: ", url, ex);
             return ex.toString();
         }
     }
 
     public static String post(String url, String content) {
-        Request request = new Request.Builder()
-                .url(url)
-                .post(RequestBody.create(content, APPLICATION_JSON))
-                .header("User-Agent", "SpiritLight/1.21")
-                .build();
+        Request request =
+                new Request.Builder()
+                        .url(url)
+                        .post(RequestBody.create(content, APPLICATION_JSON))
+                        .header("User-Agent", "SpiritLight/1.21")
+                        .build();
 
         try (Response response = client.newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
         } catch (NullPointerException | IOException ex) {
-            LogManager.getLogger("FishHelper/Connection").error("Failed to post data to " + url + ": ", ex);
+            LogManager.getLogger("FishHelper/Connection")
+                    .error("Failed to post data to " + url + ": ", ex);
             return ex.toString();
         }
     }

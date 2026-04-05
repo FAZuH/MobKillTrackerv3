@@ -1,14 +1,13 @@
 package com.spiritlight.adapters.fabric.game.impl;
 
 import com.spiritlight.adapters.fabric.game.FabricChatComponent;
+import java.util.List;
+import java.util.Objects;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextContent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Objects;
 
 public class FabricChatComponentImpl implements FabricChatComponent, Text {
 

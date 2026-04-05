@@ -13,7 +13,16 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 public class Message {
-    public static final String TITLE = Color.GOLD + "[" + Color.GREEN + "MKT " + Color.YELLOW + "v3" + Color.GOLD + "] " + Color.RESET;
+    public static final String TITLE =
+            Color.GOLD
+                    + "["
+                    + Color.GREEN
+                    + "MKT "
+                    + Color.YELLOW
+                    + "v3"
+                    + Color.GOLD
+                    + "] "
+                    + Color.RESET;
 
     public static void info(String s) {
         send(s, Color.WHITE);
@@ -32,12 +41,11 @@ public class Message {
     }
 
     public static void debug(String s) {
-        if(Main.configuration.isLogging())
-            send(s, Color.MAGENTA);
+        if (Main.configuration.isLogging()) send(s, Color.MAGENTA);
     }
 
     public static void debugv(String s) {
-        if(Main.configuration.doLogValid() || Main.configuration.isLogging())
+        if (Main.configuration.doLogValid() || Main.configuration.isLogging())
             send(s, Color.MAGENTA);
     }
 
@@ -46,9 +54,8 @@ public class Message {
     }
 
     public static void send(String... s) {
-        if(s == null) throw new NullPointerException();
-        for(String str : s)
-            send(str);
+        if (s == null) throw new NullPointerException();
+        for (String str : s) send(str);
     }
 
     public static void send(String s, Color color) {
@@ -64,8 +71,7 @@ public class Message {
     }
 
     public static String formatJson(String s) {
-        return s
-                .replace("{", TextFormatting.AQUA + "{" + TextFormatting.GOLD)
+        return s.replace("{", TextFormatting.AQUA + "{" + TextFormatting.GOLD)
                 .replace("}", TextFormatting.AQUA + "}" + TextFormatting.GOLD)
                 .replace("[", TextFormatting.RESET + "[" + TextFormatting.GOLD)
                 .replace("]", TextFormatting.RESET + "]" + TextFormatting.GOLD)
@@ -76,8 +82,10 @@ public class Message {
     }
 
     private static void send0(ITextComponent content) {
-        if(Minecraft.getMinecraft().player == null) return;
-        MinecraftForge.EVENT_BUS.post(new ExecutionEvent(Main.class, () -> Minecraft.getMinecraft().player.sendMessage(content)));
+        if (Minecraft.getMinecraft().player == null) return;
+        MinecraftForge.EVENT_BUS.post(
+                new ExecutionEvent(
+                        Main.class, () -> Minecraft.getMinecraft().player.sendMessage(content)));
     }
 
     public static Builder builder() {
@@ -104,23 +112,22 @@ public class Message {
         }
 
         public Builder addClickEvent(ClickEvent.Action action, String value) {
-            this.component.setStyle(component.getStyle().setClickEvent(new ClickEvent(
-                    action, value
-            )));
+            this.component.setStyle(
+                    component.getStyle().setClickEvent(new ClickEvent(action, value)));
             return this;
         }
 
         public Builder addHoverEvent(HoverEvent.Action action, ITextComponent value) {
-            this.component.setStyle(component.getStyle().setHoverEvent(new HoverEvent(
-                    action, value
-            )));
+            this.component.setStyle(
+                    component.getStyle().setHoverEvent(new HoverEvent(action, value)));
             return this;
         }
 
         public Builder addHoverEvent(HoverEvent.Action action, String value) {
-            this.component.setStyle(component.getStyle().setHoverEvent(new HoverEvent(
-                    action, new TextComponentString(value)
-            )));
+            this.component.setStyle(
+                    component
+                            .getStyle()
+                            .setHoverEvent(new HoverEvent(action, new TextComponentString(value))));
             return this;
         }
 
@@ -140,8 +147,8 @@ public class Message {
         }
 
         /**
-         * @return The component so far, technically no building process
-         * is needed, so the component is just given without modification
+         * @return The component so far, technically no building process is needed, so the component
+         *     is just given without modification
          */
         public ITextComponent get() {
             return component;
