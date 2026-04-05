@@ -79,17 +79,14 @@ class ItemDatabaseTest {
 
     @Test
     void shouldConvertTierStringToEnum() {
-        // Test item rarity conversion (Wynncraft API uses lowercase)
-        assertEquals(Rarity.LEGENDARY, parseRarity("legendary"));
-        assertEquals(Rarity.RARE, parseRarity("rare"));
-        assertEquals(Rarity.MYTHIC, parseRarity("mythic"));
-        assertEquals(Rarity.FABLED, parseRarity("fabled"));
-        assertEquals(Rarity.UNIQUE, parseRarity("unique"));
-        assertEquals(Rarity.SET, parseRarity("set"));
-        assertEquals(Rarity.NORMAL, parseRarity("common"));
-        assertEquals(
-                Rarity.NORMAL, parseRarity("normal")); // Wynncraft uses "normal" for common items
-        assertEquals(Rarity.UNKNOWN, parseRarity("unknown"));
+        // Test item rarity conversion using Rarity.fromString() (Wynncraft API uses lowercase)
+        assertEquals(Rarity.LEGENDARY, Rarity.fromString("legendary"));
+        assertEquals(Rarity.RARE, Rarity.fromString("rare"));
+        assertEquals(Rarity.MYTHIC, Rarity.fromString("mythic"));
+        assertEquals(Rarity.FABLED, Rarity.fromString("fabled"));
+        assertEquals(Rarity.UNIQUE, Rarity.fromString("unique"));
+        assertEquals(Rarity.NORMAL, Rarity.fromString("normal"));
+        assertEquals(Rarity.UNKNOWN, Rarity.fromString("unknown"));
 
         // Test ingredient tier conversion
         assertEquals(Tier.THREE, parseTier("TIER_3"));
@@ -101,12 +98,19 @@ class ItemDatabaseTest {
 
     @Test
     void shouldNotWarnForIngredientTiers() {
-        // Ingredient tiers like TIER_0, TIER_1 should not generate warnings
-        // when passed to parseRarity (they should return UNKNOWN silently)
-        assertEquals(Rarity.UNKNOWN, parseRarity("TIER_0"));
-        assertEquals(Rarity.UNKNOWN, parseRarity("TIER_1"));
-        assertEquals(Rarity.UNKNOWN, parseRarity("TIER_2"));
-        assertEquals(Rarity.UNKNOWN, parseRarity("TIER_3"));
+        // Ingredient tiers like TIER_0, TIER_1 should return UNKNOWN silently
+        // when passed to Rarity.fromString()
+        assertEquals(Rarity.UNKNOWN, Rarity.fromString("TIER_0"));
+        assertEquals(Rarity.UNKNOWN, Rarity.fromString("TIER_1"));
+        assertEquals(Rarity.UNKNOWN, Rarity.fromString("TIER_2"));
+        assertEquals(Rarity.UNKNOWN, Rarity.fromString("TIER_3"));
+    }
+
+    @Test
+    void shouldReturnUnknownForInvalidRarities() {
+        // "set" and "common" are not valid rarities in Wynncraft API v3
+        assertEquals(Rarity.UNKNOWN, Rarity.fromString("set"));
+        assertEquals(Rarity.UNKNOWN, Rarity.fromString("common"));
     }
 
     @Test
@@ -124,19 +128,6 @@ class ItemDatabaseTest {
         String emptyResponse = "";
         JsonElement element = new Gson().fromJson(emptyResponse, JsonElement.class);
         assertNull(element);
-    }
-
-    private Rarity parseRarity(String tier) {
-        return switch (tier.toLowerCase()) {
-            case "mythic" -> Rarity.MYTHIC;
-            case "fabled" -> Rarity.FABLED;
-            case "legendary" -> Rarity.LEGENDARY;
-            case "rare" -> Rarity.RARE;
-            case "set" -> Rarity.SET;
-            case "unique" -> Rarity.UNIQUE;
-            case "common", "normal" -> Rarity.NORMAL;
-            default -> Rarity.UNKNOWN;
-        };
     }
 
     private Tier parseTier(String tier) {

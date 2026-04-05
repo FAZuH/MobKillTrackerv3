@@ -15,7 +15,6 @@ public class DropStatistics {
             fabled = 0,
             legendary = 0,
             rare = 0,
-            set = 0,
             unique = 0,
             normal = 0,
             ingredient3 = 0,
@@ -33,7 +32,6 @@ public class DropStatistics {
         this.fabled = that.fabled;
         this.legendary = that.legendary;
         this.rare = that.rare;
-        this.set = that.set;
         this.unique = that.unique;
         this.normal = that.normal;
         this.ingredient3 = that.ingredient3;
@@ -50,7 +48,7 @@ public class DropStatistics {
         return type == ITEM
                 ?
                 // item total
-                mythic + fabled + legendary + rare + set + unique + normal
+                mythic + fabled + legendary + rare + unique + normal
                 : type == INGREDIENT
                         ?
                         // ingredient total
@@ -59,7 +57,6 @@ public class DropStatistics {
                                 + fabled
                                 + legendary
                                 + rare
-                                + set
                                 + unique
                                 + normal
                                 + ingredient3
@@ -78,7 +75,6 @@ public class DropStatistics {
                 + fabled * FABLED.getWeight()
                 + legendary * LEGENDARY.getWeight()
                 + rare * RARE.getWeight()
-                + set * SET.getWeight()
                 + unique * UNIQUE.getWeight()
                 + normal * NORMAL.getWeight();
     }
@@ -112,7 +108,6 @@ public class DropStatistics {
         object.addProperty("fabled", fabled);
         object.addProperty("legendary", legendary);
         object.addProperty("rare", rare);
-        object.addProperty("set", set);
         object.addProperty("unique", unique);
         object.addProperty("normal", normal);
         object.addProperty("ingredient3", ingredient3);
@@ -156,13 +151,6 @@ public class DropStatistics {
     public void addRare() {
         synchronized (lock) {
             rare++;
-        }
-    }
-
-    @Synchronized
-    public void addSet() {
-        synchronized (lock) {
-            set++;
         }
     }
 
@@ -234,13 +222,6 @@ public class DropStatistics {
     public void removeRare() {
         synchronized (lock) {
             rare--;
-        }
-    }
-
-    @Synchronized
-    public void removeSet() {
-        synchronized (lock) {
-            set--;
         }
     }
 
@@ -332,14 +313,6 @@ public class DropStatistics {
         this.rare = rare;
     }
 
-    public int getSet() {
-        return set;
-    }
-
-    public void setSet(int set) {
-        this.set = set;
-    }
-
     public int getUnique() {
         return unique;
     }
@@ -397,7 +370,6 @@ public class DropStatistics {
                 && fabled == that.fabled
                 && legendary == that.legendary
                 && rare == that.rare
-                && set == that.set
                 && unique == that.unique
                 && normal == that.normal
                 && ingredient3 == that.ingredient3
@@ -415,7 +387,6 @@ public class DropStatistics {
                 fabled,
                 legendary,
                 rare,
-                set,
                 unique,
                 normal,
                 ingredient3,

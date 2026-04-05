@@ -137,7 +137,11 @@ public class EntityEventHandler {
 
             Type type = ItemDatabase.instance.getItemType(itemName);
 
-            if (type == Type.UNKNOWN) return;
+            if (type == Type.UNKNOWN) {
+                Main.LOGGER.debug("[MKT] Unknown item type for: {}", itemName);
+                return;
+            }
+            Main.LOGGER.debug("[MKT] Detected item: {} (type={})", itemName, type);
 
             // Old schooled way due to involving some huge ass component that I'm too lazy to change
             if (Main.configuration.isLogging() || Main.configuration.doLogValid()) {
@@ -230,9 +234,6 @@ public class EntityEventHandler {
             case RARE:
                 stats.addRare();
                 break;
-            case SET:
-                stats.addSet();
-                break;
             case UNIQUE:
                 stats.addUnique();
                 break;
@@ -257,9 +258,6 @@ public class EntityEventHandler {
                 break;
             case RARE:
                 stats.removeRare();
-                break;
-            case SET:
-                stats.removeSet();
                 break;
             case UNIQUE:
                 stats.removeUnique();

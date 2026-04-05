@@ -85,10 +85,10 @@ public class ItemDatabase {
                     continue;
                 }
 
-                // Items have "tier" field for rarity (lowercase: common, unique, rare, etc.)
+                // Items have "tier" field for rarity (lowercase: normal, unique, rare, etc.)
                 if (itemObj.has("tier")) {
                     String rarity = itemObj.get("tier").getAsString();
-                    Rarity itemRarity = parseRarity(rarity);
+                    Rarity itemRarity = Rarity.fromString(rarity);
                     if (itemRarity != Rarity.UNKNOWN) {
                         itemMap.put(itemName, itemRarity);
                     }
@@ -144,26 +144,6 @@ public class ItemDatabase {
                     "[MKT-ERROR] Failed to load ingredients from resource: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    private Rarity parseRarity(String rarity) {
-        if (rarity == null) return Rarity.UNKNOWN;
-        return switch (rarity.toLowerCase()) {
-            case "mythic" -> Rarity.MYTHIC;
-            case "fabled" -> Rarity.FABLED;
-            case "legendary" -> Rarity.LEGENDARY;
-            case "rare" -> Rarity.RARE;
-            case "set" -> Rarity.SET;
-            case "unique" -> Rarity.UNIQUE;
-            case "common", "normal" -> Rarity.NORMAL;
-            default -> {
-                // Only warn for actual unknown rarities, not ingredient tiers
-                if (!rarity.toUpperCase().startsWith("TIER_")) {
-                    System.out.println("[MKT-WARN] Unknown rarity: " + rarity);
-                }
-                yield Rarity.UNKNOWN;
-            }
-        };
     }
 
     private Tier parseTier(String tierStr) {

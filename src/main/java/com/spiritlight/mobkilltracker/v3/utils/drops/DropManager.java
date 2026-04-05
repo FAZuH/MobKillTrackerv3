@@ -141,9 +141,6 @@ public class DropManager {
                 + "§dRare §rDrops: "
                 + drops.getRare()
                 + "\n"
-                + "§aSet §rDrops: "
-                + drops.getSet()
-                + "\n"
                 + "§eUnique §rDrops: "
                 + drops.getUnique()
                 + "\n"
