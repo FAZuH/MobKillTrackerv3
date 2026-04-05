@@ -1,13 +1,17 @@
 package com.spiritlight.mobkilltracker.v3.utils;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.spiritlight.mobkilltracker.v3.enums.Rarity;
 import com.spiritlight.mobkilltracker.v3.enums.Tier;
 import com.spiritlight.mobkilltracker.v3.enums.Type;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemDatabase {
@@ -33,69 +37,146 @@ public class ItemDatabase {
     }
 
     public void fetchItem() {
-        System.out.println("Collecting to db...");
+        System.out.println("Loading items from bundled data...");
         itemMap.clear();
         ingredientMap.clear();
-        try {
-            JsonElement items =
-                    new Gson()
-                            .fromJson(
-                                    Request.get(
-                                            "https://api.wynncraft.com/public_api.php?action=itemDB&category=all"),
-                                    JsonElement.class);
-            JsonArray arr = items.getAsJsonObject().getAsJsonArray("items");
-            for (JsonElement element : arr) {
-                String rarity = element.getAsJsonObject().get("tier").getAsString();
-                Rarity itemRarity;
-                switch (rarity) {
-                    case "Mythic":
-                        itemRarity = Rarity.MYTHIC;
-                        break;
-                    case "Fabled":
-                        itemRarity = Rarity.FABLED;
-                        break;
-                    case "Legendary":
-                        itemRarity = Rarity.LEGENDARY;
-                        break;
-                    case "Rare":
-                        itemRarity = Rarity.RARE;
-                        break;
-                    case "Set":
-                        itemRarity = Rarity.SET;
-                        break;
-                    case "Unique":
-                        itemRarity = Rarity.UNIQUE;
-                        break;
-                    case "Normal":
-                        itemRarity = Rarity.NORMAL;
-                        break;
-                    default:
-                        System.out.println("Found ambiguous item " + element);
-                        itemRarity = Rarity.UNKNOWN;
-                        break;
-                }
-                // Item Name : Tier
-                itemMap.put(element.getAsJsonObject().get("name").getAsString(), itemRarity);
+
+        // Load items from bundled JSON resource
+        loadItemsFromResource();
+
+        // Load ingredients from bundled JSON resource
+        loadIngredientsFromResource();
+
+        System.out.println(
+                "[MKT-DEBUG] Loaded "
+                        + itemMap.size()
+                        + " items and "
+                        + ingredientMap.size()
+                        + " ingredients from bundled data");
+        System.out.println("Items loaded.");
+    }
+
+    private void loadItemsFromResource() {
+        try (BufferedReader reader =
+                new BufferedReader(
+                        new InputStreamReader(
+                                Objects.requireNonNull(
+                                        getClass()
+                                                .getResourceAsStream("/data/wynncraft-items.json")),
+                                StandardCharsets.UTF_8))) {
+            JsonElement itemsElement = new Gson().fromJson(reader, JsonElement.class);
+
+            if (itemsElement == null || !itemsElement.isJsonObject()) {
+                System.out.println("[MKT-ERROR] Items resource is null or not an object");
+                return;
             }
-            for (int i = 0; i < 4; i++) {
-                JsonElement ingredients =
-                        new Gson()
-                                .fromJson(
-                                        Request.get(
-                                                "https://api.wynncraft.com/v2/ingredient/search/tier/"
-                                                        + i),
-                                        JsonElement.class);
-                for (JsonElement element : ingredients.getAsJsonObject().getAsJsonArray("data")) {
-                    Tier tier =
-                            (i == 0
-                                    ? Tier.ZERO
-                                    : i == 1 ? Tier.ONE : i == 2 ? Tier.TWO : Tier.THREE);
-                    ingredientMap.put(element.getAsJsonObject().get("name").getAsString(), tier);
+
+            JsonObject itemsObj = itemsElement.getAsJsonObject();
+
+            for (Map.Entry<String, JsonElement> entry : itemsObj.entrySet()) {
+                String itemName = entry.getKey();
+                JsonElement itemData = entry.getValue();
+                if (!itemData.isJsonObject()) continue;
+
+                JsonObject itemObj = itemData.getAsJsonObject();
+
+                // Skip ingredients - they have type "ingredient"
+                if (itemObj.has("type") && "ingredient".equals(itemObj.get("type").getAsString())) {
+                    continue;
+                }
+
+                // Items have "tier" field for rarity (lowercase: common, unique, rare, etc.)
+                if (itemObj.has("tier")) {
+                    String rarity = itemObj.get("tier").getAsString();
+                    Rarity itemRarity = parseRarity(rarity);
+                    if (itemRarity != Rarity.UNKNOWN) {
+                        itemMap.put(itemName, itemRarity);
+                    }
                 }
             }
         } catch (Exception e) {
+            System.out.println("[MKT-ERROR] Failed to load items from resource: " + e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("API fetched.");
+    }
+
+    private void loadIngredientsFromResource() {
+        try (BufferedReader reader =
+                new BufferedReader(
+                        new InputStreamReader(
+                                Objects.requireNonNull(
+                                        getClass()
+                                                .getResourceAsStream(
+                                                        "/data/wynncraft-ingredients.json")),
+                                StandardCharsets.UTF_8))) {
+            JsonElement ingredientsElement = new Gson().fromJson(reader, JsonElement.class);
+
+            if (ingredientsElement == null || !ingredientsElement.isJsonObject()) {
+                System.out.println("[MKT-ERROR] Ingredients resource is null or not an object");
+                return;
+            }
+
+            JsonObject ingredientsObj = ingredientsElement.getAsJsonObject();
+
+            // The ingredients response has a "results" wrapper
+            JsonObject results = ingredientsObj.getAsJsonObject("results");
+            if (results == null) {
+                System.out.println("[MKT-ERROR] Ingredients resource missing 'results' key");
+                return;
+            }
+
+            for (Map.Entry<String, JsonElement> entry : results.entrySet()) {
+                String itemName = entry.getKey();
+                JsonElement itemData = entry.getValue();
+                if (!itemData.isJsonObject()) continue;
+
+                JsonObject itemObj = itemData.getAsJsonObject();
+
+                // Ingredients have "tier" field like "TIER_0", "TIER_1", etc.
+                if (itemObj.has("tier")) {
+                    String tierStr = itemObj.get("tier").getAsString();
+                    Tier tier = parseTier(tierStr);
+                    ingredientMap.put(itemName, tier);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(
+                    "[MKT-ERROR] Failed to load ingredients from resource: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private Rarity parseRarity(String rarity) {
+        if (rarity == null) return Rarity.UNKNOWN;
+        return switch (rarity.toLowerCase()) {
+            case "mythic" -> Rarity.MYTHIC;
+            case "fabled" -> Rarity.FABLED;
+            case "legendary" -> Rarity.LEGENDARY;
+            case "rare" -> Rarity.RARE;
+            case "set" -> Rarity.SET;
+            case "unique" -> Rarity.UNIQUE;
+            case "common", "normal" -> Rarity.NORMAL;
+            default -> {
+                // Only warn for actual unknown rarities, not ingredient tiers
+                if (!rarity.toUpperCase().startsWith("TIER_")) {
+                    System.out.println("[MKT-WARN] Unknown rarity: " + rarity);
+                }
+                yield Rarity.UNKNOWN;
+            }
+        };
+    }
+
+    private Tier parseTier(String tierStr) {
+        if (tierStr == null) return Tier.UNKNOWN;
+        return switch (tierStr) {
+            case "TIER_3", "3" -> Tier.THREE;
+            case "TIER_2", "2" -> Tier.TWO;
+            case "TIER_1", "1" -> Tier.ONE;
+            case "TIER_0", "0" -> Tier.ZERO;
+            default -> {
+                System.out.println("[MKT-WARN] Unknown tier: " + tierStr);
+                yield Tier.UNKNOWN;
+            }
+        };
     }
 }

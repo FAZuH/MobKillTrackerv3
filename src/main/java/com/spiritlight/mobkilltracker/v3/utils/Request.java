@@ -28,4 +28,24 @@ public class Request {
             return "";
         }
     }
+
+    public static String post(String url, String body) {
+        try {
+            HttpRequest request =
+                    HttpRequest.newBuilder()
+                            .uri(URI.create(url))
+                            .timeout(Duration.ofSeconds(10))
+                            .header("Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.ofString(body))
+                            .build();
+
+            HttpResponse<String> response =
+                    CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return response.statusCode() == 200 ? response.body() : "";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
 }
